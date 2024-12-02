@@ -1,0 +1,5 @@
+---
+- name: "{{ addon_name }}"
+  hosts: all
+  roles:
+    - role: common

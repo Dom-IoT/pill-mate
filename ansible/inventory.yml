@@ -1,0 +1,8 @@
+---
+all:
+  hosts:
+    homeassistant:
+      ansible_host: 127.0.0.1
+      ansible_port: 2222
+      ansible_user: root
+      ansible_python_interpreter: /usr/bin/python3

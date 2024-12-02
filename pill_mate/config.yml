@@ -1,0 +1,22 @@
+---
+name: "Pill Mate"
+description: ""
+version: "0.0.0"
+slug: "pill_mate"
+init: false
+map:
+  - type: homeassistant_config
+    read_only: False
+ingress: true
+panel_icon: mdi:pill-multiple
+panel_title: Pill Mate
+hassio_api: true
+homeassistant_api: true
+hassio_role: admin
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+startup: services

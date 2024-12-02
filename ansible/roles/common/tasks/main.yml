@@ -1,0 +1,76 @@
+---
+- name: Install rsync
+  ansible.builtin.apt:
+    name: rsync
+  tags: setup
+
+- name: Copy addon files
+  ansible.posix.synchronize:
+    src: ../{{ addon_name }}
+    dest: /usr/share/hassio/addons/local
+    delete: true
+    recursive: true
+  tags: [setup, update, reinstall]
+
+- name: Uninstall addon
+  ansible.builtin.command:
+    argv:
+      - ha
+      - addons
+      - uninstall
+      - local_{{ addon_name }}
+      - --no-progress
+  ignore_errors: true
+  tags: [clean, reinstall]
+
+- name: Remove addon files
+  ansible.builtin.file:
+    path: /usr/share/hassio/addons/local/{{ addon_name }}
+    state: absent
+  tags: clean
+
+- name: Update ha addons store
+  ansible.builtin.command:
+    argv:
+      - ha
+      - store
+      - reload
+      - --no-progress
+  tags: [setup, clean, reinstall]
+
+- name: Install addon
+  ansible.builtin.command:
+    argv:
+      - ha
+      - addons
+      - install
+      - local_{{ addon_name }}
+      - --no-progress
+  tags: [setup, reinstall]
+
+- name: Rebuild addon
+  ansible.builtin.command:
+    argv:
+      - ha
+      - addons
+      - rebuild
+      - local_{{ addon_name }}
+      - --no-progress
+  tags: update
+
+- name: Check addon status
+  ansible.builtin.shell:
+    cmd: ha addons info --raw-json local_{{ addon_name }} | jq -r .data.state
+  register: command
+  tags: [setup, update, reinstall]
+
+- name: Start addon
+  ansible.builtin.command:
+    argv:
+      - ha
+      - addons
+      - start
+      - local_{{ addon_name }}
+      - --no-progress
+  when: command.stdout != 'started'
+  tags: [setup, update, reinstall]
