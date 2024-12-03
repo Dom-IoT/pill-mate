@@ -28,7 +28,7 @@ if [ $DEV -eq 0 ]; then
 }
 EOF
 else
-    ADDON_ID=$(curl -sSL -X GET -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" -H "Content-Type: application/json" http://supervisor/addons/local_hello_world/info | jq -r .data.ingress_entry | cut -d / -f 4)
+    ADDON_ID=$(curl -sSL -X GET -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" -H "Content-Type: application/json" http://supervisor/addons/local_pill_mate/info | jq -r .data.ingress_entry | cut -d / -f 4)
 
     bashio::log.info "ADDON_ID=${ADDON_ID}"
 
