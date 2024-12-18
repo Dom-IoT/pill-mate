@@ -1,0 +1,58 @@
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  frontend:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: pill_mate/frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Lint frontend
+        run: npm run lint
+
+  backend:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: pill_mate/backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install modules
+        run: npm ci
+
+      - name: Build backend
+        run: npm run build
+
+      - name: Lint backend
+        run: npm run lint
