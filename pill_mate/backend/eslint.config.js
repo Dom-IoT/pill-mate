@@ -1,8 +1,6 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
-import prettier from 'eslint-plugin-prettier'
-import prettierConfig from 'eslint-plugin-prettier/recommended'
 import importPlugin from 'eslint-plugin-import'
 
 export default tseslint.config(
@@ -11,7 +9,6 @@ export default tseslint.config(
         extends: [
             js.configs.recommended,
             ...tseslint.configs.recommended,
-            prettierConfig,
             importPlugin.flatConfigs.recommended,
         ],
         files: ['**/*.{ts,tsx}'],
@@ -19,11 +16,14 @@ export default tseslint.config(
             ecmaVersion: 2020,
             globals: globals.node,
         },
-        plugins: {
-            prettier,
-        },
         rules: {
-            'import/order': 'error'
+            'max-len': ['error', { code: 100 }],
+            indent: ['error', 4],
+            semi: ['error', 'never'],
+            quotes: ['error', 'single'],
+            'comma-dangle': ['error', 'always-multiline'],
+            'no-trailing-spaces': ['error'],
+            'import/order': 'error',
         },
     },
 )
