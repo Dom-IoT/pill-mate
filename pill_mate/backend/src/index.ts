@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 config({ path: '../.env' });
 
 import app from './app';
+import { logger } from './logger';
 import { sequelize } from './sequelize';
 
 const port = process.env.BACKEND_PORT || 3000;
@@ -11,6 +12,6 @@ const port = process.env.BACKEND_PORT || 3000;
     await sequelize.sync({ alter: { drop: false } });
 
     app.listen(port, () => {
-        console.log(`Server running at http://localhost:${port}`);
+        logger.info(`Server running at http://localhost:${port}`);
     });
 })();
