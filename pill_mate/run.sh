@@ -22,7 +22,7 @@ EOF
 if [ $DEV -eq 0 ]; then
     cat << EOF >> /etc/nginx/http.d/ingress.conf
     location / {
-        root /app/dist;
+        root /app/frontend/dist;
         index index.html;
     }
 }
