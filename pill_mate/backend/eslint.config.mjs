@@ -19,11 +19,12 @@ export default tseslint.config(
         rules: {
             'max-len': ['error', { code: 100 }],
             indent: ['error', 4],
-            semi: ['error', 'never'],
+            semi: ['error', 'always'],
             quotes: ['error', 'single'],
             'comma-dangle': ['error', 'always-multiline'],
             'no-trailing-spaces': ['error'],
             'import/order': 'error',
+            'import/no-unresolved': 'off',
         },
     },
 )

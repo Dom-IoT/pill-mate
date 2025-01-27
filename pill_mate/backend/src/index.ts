@@ -1,16 +1,16 @@
-import { config } from 'dotenv'
-import express, { Request, Response } from 'express'
+import { config } from 'dotenv';
 
-config({ path: '../.env' })
+config({ path: '../.env' });
 
-const port = process.env.BACKEND_PORT || 3000
+import app from './app';
+import { sequelize } from './sequelize';
 
-const app = express()
+const port = process.env.BACKEND_PORT || 3000;
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, World!')
-})
+(async () => {
+    await sequelize.sync({ alter: { drop: false } });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`)
-})
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+})();

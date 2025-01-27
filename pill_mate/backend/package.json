@@ -1,7 +1,6 @@
 {
     "name": "backend",
     "version": "0.0.0",
-    "type": "module",
     "scripts": {
         "build": "tsc",
         "start": "node build/index.js",
@@ -10,12 +9,17 @@
     "license": "MIT",
     "dependencies": {
         "dotenv": "^16.4.5",
-        "express": "^4.21.1"
+        "express": "^4.21.1",
+        "reflect-metadata": "^0.2.2",
+        "sequelize": "^6.37.5",
+        "sequelize-typescript": "^2.1.6",
+        "sqlite3": "^5.1.7"
     },
     "devDependencies": {
         "@eslint/js": "^9.16.0",
         "@types/express": "^5.0.0",
         "@types/node": "^22.10.1",
+        "@types/validator": "^13.12.2",
         "eslint": "^9.16.0",
         "eslint-plugin-import": "^2.31.0",
         "prettier": "^3.4.2",
