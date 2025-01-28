@@ -7,8 +7,6 @@ RUN apk add --no-cache nginx nodejs npm
 
 COPY . /app/
 
-RUN cd backend && npm install && npm run build
-
-RUN cd frontend && npm install && npm run build
+RUN bash build.sh
 
 CMD [ "./run.sh" ]
