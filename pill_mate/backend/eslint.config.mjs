@@ -23,6 +23,7 @@ export default tseslint.config(
             quotes: ['error', 'single'],
             'comma-dangle': ['error', 'always-multiline'],
             'no-trailing-spaces': ['error'],
+            'eqeqeq': ['error', 'always'],
             'import/order': 'error',
             'import/no-unresolved': 'off',
         },

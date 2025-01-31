@@ -15,7 +15,8 @@
         "sequelize": "^6.37.5",
         "sequelize-typescript": "^2.1.6",
         "sqlite3": "^5.1.7",
-        "winston": "^3.17.0"
+        "winston": "^3.17.0",
+        "ws": "^8.18.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.16.0",
@@ -23,6 +24,7 @@
         "@types/morgan": "^1.9.9",
         "@types/node": "^22.10.1",
         "@types/validator": "^13.12.2",
+        "@types/ws": "^8.5.14",
         "eslint": "^9.16.0",
         "eslint-plugin-import": "^2.31.0",
         "prettier": "^3.4.2",
