@@ -1,9 +1,9 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 
 export default tseslint.config(
     { ignores: ['dist'] },
@@ -26,7 +26,7 @@ export default tseslint.config(
             'no-console': 'error',
             'max-len': ['error', { code: 100 }],
             indent: ['error', 4],
-            semi: ['error', 'never'],
+            semi: ['error', 'always'],
             quotes: ['error', 'single'],
             'comma-dangle': ['error', 'always-multiline'],
             'no-trailing-spaces': ['error'],
@@ -38,4 +38,4 @@ export default tseslint.config(
             ],
         },
     },
-)
+);

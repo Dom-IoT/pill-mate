@@ -1,0 +1,34 @@
+.DashboardButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 5vw;
+  font-weight: bold;
+}
+
+.DashboardButton .icon {
+  transition: filter 0.3s ease-in-out;
+  cursor: pointer;
+  color: white;
+}
+
+.DashboardButton .icon:hover {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+.DashboardButton.blue {
+  background-color: var(--blue);
+}
+
+.DashboardButton.green {
+  background-color: var(--green);
+}
+
+.DashboardButton.red {
+  background-color: var(--red);
+}
+
+.DashboardButton.orange {
+  background-color: var(--orange);
+}
