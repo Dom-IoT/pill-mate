@@ -16,7 +16,9 @@ cd pill-mate
 cp pill_mate/.env.dist pill_mate/.env
 ```
 
-Edit the `.env` file and set `DEV` at 1.
+Edit the `.env` file:
+ - set `DEV` at 1
+ - set `NODE_ENV` at development
 
 ```sh
 make addon-setup
