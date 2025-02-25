@@ -42,7 +42,7 @@ const Dashboard: FC = () => {
                     label="Calendrier"
                     icon=<Calendar size={iconSize} />
                     color="blue"
-                    path="/calendrier"
+                    path="/calendar"
                 />
                 <DashboardButton
                     label="Gestion des stocks"

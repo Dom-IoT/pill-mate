@@ -1,0 +1,55 @@
+.Calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    background-color: var(--blue);
+    height: 100vh;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.Title {
+    font-size: 3rem;
+    text-align: center;
+}
+
+.TitleBar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--light_blue);
+    font-size: 2rem;
+    font-weight: bold;
+    border: 3px solid black;
+    width: fit-content;
+    padding: 5px 7.5px;
+    color: black;
+    margin-bottom: 15px;
+}
+
+.Icon {
+    width: 1em; /* Ajuste la taille pour s'adapter au texte */
+    height: 1em;
+}
+
+.foo {
+    flex-grow: 1;
+}
+
+.RappelBar {
+    background-color: var(--light_blue);
+    font-size: 1rem;
+    border: 3px solid black;
+    width: fit-content;
+    margin: auto;
+    padding: 5px 7.5px;
+    color: black;
+}
+
+.Link {
+    font-size: 1rem;
+    padding: 5px;
+    color: white;
+}
