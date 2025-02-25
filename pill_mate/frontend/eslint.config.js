@@ -13,7 +13,7 @@ export default tseslint.config(
             ...tseslint.configs.recommended,
             importPlugin.flatConfigs.recommended,
         ],
-        files: ['**/*.{ts,tsx}'],
+        files: ['**/*.{js,ts,tsx}'],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
@@ -28,9 +28,11 @@ export default tseslint.config(
             indent: ['error', 4],
             semi: ['error', 'always'],
             quotes: ['error', 'single'],
+            'jsx-quotes': ['error', 'prefer-double'],
             'comma-dangle': ['error', 'always-multiline'],
             'no-trailing-spaces': ['error'],
             'import/order': 'error',
+            'import/no-unresolved': 'off',
             ...reactHooks.configs.recommended.rules,
             'react-refresh/only-export-components': [
                 'warn',
