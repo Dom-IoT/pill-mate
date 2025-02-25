@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import morgan from 'morgan';
 
 import { createLogger } from './logger';
-import homeassistant from './homeassistant';
 import userRoutes from './routes/userRoutes';
 import { HTTP_400_BAD_REQUEST } from './status';
 
@@ -50,7 +49,5 @@ app.use((request: Request, response: Response, next) => {
 });
 
 app.use('/user', userRoutes);
-
-});
 
 export default app;
