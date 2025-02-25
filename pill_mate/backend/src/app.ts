@@ -2,11 +2,6 @@ import express, { Request, Response } from 'express';
 import morgan from 'morgan';
 
 import { createLogger } from './logger';
-import HomeAssistant from './homeassistant';
-
-const HOME_ASSISTANT_SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN || '';
-
-const homeassistant = new HomeAssistant(HOME_ASSISTANT_SUPERVISOR_TOKEN);
 
 const app = express();
 
@@ -18,8 +13,7 @@ app.use(morgan('dev', {
     },
 }));
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, World!');
+app.use(express.json());
 });
 
 export default app;
