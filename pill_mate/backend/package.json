@@ -7,7 +7,7 @@
         "lint": "eslint .",
         "swagger-generate": "swagger-jsdoc -d swagger.cjs src/**/*.ts",
         "swagger-serve": "swagger-ui-watcher -c ./swagger-config.json swagger.json",
-        "swagger-start": "npm run swagger-generate && npm run swagger-serve"
+        "swagger": "npm run swagger-generate && npm run swagger-serve"
     },
     "license": "MIT",
     "dependencies": {

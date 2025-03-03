@@ -38,3 +38,16 @@ backend using:
 ```sh
 make add-update
 ```
+
+## Documentation
+
+### Backend
+
+The backend API is documented with swagger. To open the documentation you can
+run :
+
+```sh
+make swagger
+```
+
+This will open the swagger interface in your browser.
