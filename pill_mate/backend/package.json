@@ -4,10 +4,18 @@
     "scripts": {
         "build": "tsc",
         "start": "node build/index.js",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "swagger-generate": "swagger-jsdoc -d swagger.cjs src/**/*.ts",
+        "swagger-serve": "swagger-ui-watcher -c ./swagger-config.json swagger.json",
+        "swagger": "npm run swagger-generate && npm run swagger-serve"
     },
     "license": "MIT",
     "dependencies": {
+        "@types/express": "^5.0.0",
+        "@types/morgan": "^1.9.9",
+        "@types/node": "^22.13.5",
+        "@types/validator": "^13.12.2",
+        "@types/ws": "^8.5.14",
         "dotenv": "^16.4.5",
         "express": "^4.21.1",
         "morgan": "^1.10.0",
@@ -15,20 +23,17 @@
         "sequelize": "^6.37.5",
         "sequelize-typescript": "^2.1.6",
         "sqlite3": "^5.1.7",
+        "typescript": "^5.7.3",
         "winston": "^3.17.0",
         "ws": "^8.18.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.16.0",
-        "@types/express": "^5.0.0",
-        "@types/morgan": "^1.9.9",
-        "@types/node": "^22.10.1",
-        "@types/validator": "^13.12.2",
-        "@types/ws": "^8.5.14",
+        "@types/swagger-jsdoc": "^6.0.4",
         "eslint": "^9.16.0",
         "eslint-plugin-import": "^2.31.0",
-        "prettier": "^3.4.2",
-        "typescript": "^5.7.2",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-watcher": "^2.1.14",
         "typescript-eslint": "^8.18.0"
     }
 }

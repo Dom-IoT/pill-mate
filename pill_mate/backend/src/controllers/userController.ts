@@ -19,11 +19,11 @@ export const me = async (request: Request, response: Response) => {
         homeAssistantUserId: request.homeAssistantUserId,
         userName: request.homeAssistantUserName,
         userDisplayName: request.homeAssistantUserDisplayName,
+        role: user.role,
     });
 };
 
 export const createUser = async (request: Request, response: Response) => {
-    console.log(request.body);
     const { role } = request.body as { role?: unknown };
     if (role === undefined) {
         response
