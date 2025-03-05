@@ -1,0 +1,40 @@
+.Screen {
+    background-color: #00000088;
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+.PopUp {
+    position: relative;
+    background-color: var(--light_blue);
+    display: flex;
+    width: 300px;
+    flex-direction: column;
+    border: 3px solid black;
+    align-items: center;
+    padding: 15px;
+}
+
+.crossIcon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    color: black;
+}
+
+.Settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
