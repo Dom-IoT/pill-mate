@@ -1,0 +1,16 @@
+.TimePicker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.customTimePicker input {
+    text-align: center;
+}
+
+.customTimePicker {
+    width: 100%;
+}

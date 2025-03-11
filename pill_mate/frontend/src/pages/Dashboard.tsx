@@ -20,7 +20,7 @@ const Dashboard: FC = () => {
 
     return (
         <div>
-            <div className='checkbox'>
+            <div className="checkbox">
                 <label>
                     <input
                         type="checkbox"
@@ -28,7 +28,7 @@ const Dashboard: FC = () => {
                         onChange={handleCheckboxChange}
                         style={{ display: 'none' }}
                     />
-                    <div className='checkboxIcon'>
+                    <div className="checkboxIcon">
                         {isChecked ? (
                             <SquareCheckBig size={iconSize} />
                         ) : (
@@ -37,12 +37,12 @@ const Dashboard: FC = () => {
                     </div>
                 </label>
             </div>
-            <div className='container'>
+            <div className="container">
                 <DashboardButton
                     label="Calendrier"
                     icon=<Calendar size={iconSize} />
                     color="blue"
-                    path="/calendrier"
+                    path="/calendar"
                 />
                 <DashboardButton
                     label="Gestion des stocks"

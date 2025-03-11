@@ -1,0 +1,34 @@
+.Calendar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    background-color: var(--blue);
+    min-height: 100vh;
+    overflow-y: auto;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.Title {
+    font-size: 3rem;
+    text-align: center;
+}
+
+.reminderList {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    gap: 10px;
+
+}
+
+.Link {
+    font-size: 1rem;
+    padding: 5px;
+    background-color: var(--light_blue);
+    color: black;
+    border: 1px solid black;
+}
