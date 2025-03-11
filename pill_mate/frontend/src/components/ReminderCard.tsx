@@ -10,8 +10,6 @@ interface Props {
 
 const ReminderCard: FC<Props> = ({reminder, color }) => {
     const [show, setShow] = useState(false);
-    // eslint-disable-next-line no-console
-    console.log('Données reçues par ReminderCard :', reminder);
 
     return (
         <div className={`ReminderBar ${color}`}>

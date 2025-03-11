@@ -11,8 +11,6 @@ import PopUp from '../components/PopUp.tsx';
 const Calendar: FC = () => {
     const { reminders } = useReminders();
     const [show, setShow] = useState(false);
-    // eslint-disable-next-line no-console
-    console.log('Rappels affichés :', reminders);
 
     return (
         <div className="Calendar">
