@@ -17,4 +17,4 @@ addon-reinstall:
 	ansible-playbook $(ANSIBLE_ARGS) --tags reinstall
 
 swagger:
-	cd pill_mate/backend; npm run swagger-start
+	cd pill_mate/backend; npm run swagger
