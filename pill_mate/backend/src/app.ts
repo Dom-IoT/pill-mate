@@ -1,13 +1,17 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import morgan from 'morgan';
 
 import { createLogger } from './logger';
 import userRoutes from './routes/userRoutes';
-import { HTTP_400_BAD_REQUEST } from './status';
+import {
+    HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+} from './status';
 
 const app = express();
 
 const expressLogger = createLogger('express');
+const backendLogger = createLogger('backend');
 
 app.use(morgan('dev', {
     stream: {
@@ -49,5 +53,15 @@ app.use((request: Request, response: Response, next) => {
 });
 
 app.use('/user', userRoutes);
+
+app.use((error: unknown, request: Request, response: Response, _next: NextFunction) => {
+    backendLogger.error(error);
+    if (error instanceof Error) {
+        backendLogger.debug(error.stack);
+    }
+    response
+        .status(HTTP_500_INTERNAL_SERVER_ERROR)
+        .json({ message: 'Internal Server Error.' });
+});
 
 export default app;

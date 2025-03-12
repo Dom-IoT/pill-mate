@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import { User, isUserRole } from '../models/User';
 import { HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND } from '../status';
+import { asyncErrorHandler } from '../utils';
 
-export const me = async (request: Request, response: Response) => {
+export const me = asyncErrorHandler(async (request: Request, response: Response) => {
     const user = await User.findOne({
         where: {
             homeAssistantUserId: request.homeAssistantUserId,
@@ -21,9 +22,9 @@ export const me = async (request: Request, response: Response) => {
         userDisplayName: request.homeAssistantUserDisplayName,
         role: user.role,
     });
-};
+});
 
-export const createUser = async (request: Request, response: Response) => {
+export const createUser = asyncErrorHandler(async (request: Request, response: Response) => {
     const { role } = request.body as { role?: unknown };
     if (role === undefined) {
         response
@@ -59,4 +60,4 @@ export const createUser = async (request: Request, response: Response) => {
     response
         .status(HTTP_201_CREATED)
         .json({ message: 'User created successfully.' });
-};
+});
