@@ -11,11 +11,11 @@ interface Props {
 const PopUp: FC<Props> = ({ onClose }) => {
     const { addReminder } = useReminders();
     const [name, setName] = useState('');
-    const [date, setDate] = useState<Date | null>(null);
+    const [dateFirstTake, setDate] = useState<Date | null>(null);
 
     const handleSubmit = () => {
-        if (name && date) {
-            addReminder(name, date);
+        if (name && dateFirstTake) {
+            addReminder(name, dateFirstTake);
         }
     };
 
@@ -23,7 +23,7 @@ const PopUp: FC<Props> = ({ onClose }) => {
         <div className="Screen" onClick={onClose}>
             <div className="PopUp" onClick={(e) => e.stopPropagation()}>
                 <h2>Créer un rappel</h2>
-                <CircleX size={24} className="crossIcon" onClick={onClose}/>
+                <CircleX size={24} className="CrossIcon" onClick={onClose}/>
                 <input
                     type="text"
                     placeholder='Nom du rappel'

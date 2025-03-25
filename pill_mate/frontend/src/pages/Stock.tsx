@@ -1,25 +1,25 @@
-import  { FC, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { FC, useState } from "react";
+import { Link } from "react-router-dom";
 import 'react-calendar/dist/Calendar.css';
 import 'react-datepicker/dist/react-datepicker.css';
-import './Calendar.css';
-import AddButton from '../components/AddButton.tsx';
-import RegisteredObject from '../components/RegisteredObject.tsx';
-import { useReminders } from '../context/UseReminder.tsx';
-import PopUp from '../components/PopUp.tsx';
+import './Stock.css';
+import PopUp from "../components/PopUp";
+import { useReminders } from "../context/UseReminder";
+import RegisteredObject from "../components/RegisteredObject";
+import AddButton from "../components/AddButton";
 
-const Calendar: FC = () => {
+const Stock: FC = () => {
     const { reminders } = useReminders();
     const [show, setShow] = useState(false);
 
     return (
-        <div className="Calendar">
-            <h1 className="Title">Liste de vos rappels</h1>
-            <div className="reminderList">
+        <div className="Stock">
+            <h1 className="Title">Liste des médicament déjà enregistrés</h1>
+            <div className="StockList">
                 <div onClick={() => setShow(true)}>
                     <AddButton 
-                        title="Ajouter un rappel" 
-                        color="blue"
+                        title="Ajouter un médicament"
+                        color="green"
                     />
                 </div>
                 {show && <PopUp onClose={() => setShow(false)}/>}
@@ -29,12 +29,12 @@ const Calendar: FC = () => {
                             <RegisteredObject
                                 key={reminder.id}
                                 rappel={reminder.name}
-                                color="blue"
+                                color="green"
                                 date={reminder.date}
                             />
                         ))
                     ) : (
-                        <p>Aucun rappel pour le moment.</p>
+                        <p>Aucun médicament pour le moment.</p>
                     )}
                 </div>
             </div>
@@ -45,4 +45,4 @@ const Calendar: FC = () => {
     );
 };
 
-export default Calendar;
+export default Stock;
