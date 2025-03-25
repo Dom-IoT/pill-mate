@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { getUserInfo, createUser as apiCreateUser } from '../services/userServices.tsx';
+import { UserRole } from '../models/UserRole.ts';
 import { UserContext, UserContextType } from './UserContext.tsx';
 
 interface UserProviderProps {
@@ -7,7 +8,7 @@ interface UserProviderProps {
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<UserContextType['user'] | undefined>(undefined);
+    const [user, setUser] = useState<UserContextType['user']>(null);
 
     useEffect(() => {
         const loadUserInfo = async () => {
@@ -22,7 +23,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         loadUserInfo();
     }, []);
 
-    const createUser = async (role: string) => {
+    const createUser = async (role: UserRole) => {
         try {
             const newUser = await apiCreateUser(role);
             setUser(newUser);

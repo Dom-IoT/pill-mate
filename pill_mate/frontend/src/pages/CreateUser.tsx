@@ -1,37 +1,30 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/useUser';
+import { UserRole } from '../models/UserRole';
+import './CreateUser.css';
 
 const CreateUser = () => {
     const { createUser } = useUser();
-    const [role, setRole] = useState('');
+    const [role] = useState(UserRole.HELPED);
     const navigate = useNavigate();
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        if (!role) return;
-
-        try {
-            await createUser(role);
-            navigate('/dashboard'); // Rediriger vers le Dashboard après la création
-        } catch (error) {
-            console.error('Error creating user:', error);
-        }
+        await createUser(role);
+        navigate('/dashboard');
     };
 
     return (
-        <div>
-            <h2>Create Your User</h2>
-            <form onSubmit={handleSubmit}>
-                <label>
-                Role:
-                    <input
-                        type="text"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                    />
-                </label>
-                <button type="submit">Create User</button>
+        <div className="CreateUser">
+            <div className="title">Bienvenue sur PillMate</div>
+            <form className="questionnaire" onSubmit={handleSubmit}>
+                <h2>Quel est votre rôle ?</h2>
+                <select name="role">
+                    <option value={UserRole.HELPED}>Personne aidée</option>
+                    <option value={UserRole.HELPER}>Personne aidante</option>
+                </select>
+                <button type="submit">Valider</button>
             </form>
         </div>
     );
