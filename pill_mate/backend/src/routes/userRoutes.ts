@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import * as userController from '../controllers/userController';
+import { requireUser } from '../middlewares/requireUser';
 
 const router = Router();
 
@@ -15,21 +16,16 @@ const router = Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - role
- *             properties:
- *               role:
- *                 $ref: '#/components/schemas/UserRole'
+ *             $ref: '#/components/schemas/CreateUser'
  *     responses:
  *       201:
  *         description: User created successfully.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/MessageResponse'
+ *               $ref: '#/components/schemas/UserInformations'
  *       400:
- *         description : Bad request.
+ *         description: Bad request.
  *         content:
  *           application/json:
  *             schema:
@@ -50,29 +46,60 @@ router.post('/', userController.createUser);
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 homeAssistantUserId:
- *                   type: string
- *                   description: Unique identifier of the user in Home Assistant.
- *                   example: c355d2aaeee44e4e84ff8394fa4794a9
- *                 userName:
- *                   type: string
- *                   description: TThe username of the user in the system.
- *                   example: johndoe
- *                 userDisplayName:
- *                   type: string
- *                   description: The display name of the user.
- *                   example: John Doe
- *                 role:
- *                   $ref: '#/components/schemas/UserRole'
- *       404:
- *         description: User not found.
+ *               $ref: '#/components/schemas/UserInformations'
+ *       401:
+ *         description: The user is not registered.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorMessageResponse'
  */
-router.get('/me', userController.me);
+router.get('/me', requireUser, userController.me);
+
+
+/**
+ * @openapi
+ * /user/{id}/reminders:
+ *   get:
+ *     summary: Get an helped user's reminders.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: Unique identifier of the helped user.
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Helped user's reminders retrieved successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               description: The list of the helped user's reminders.
+ *               items:
+ *                 $ref: '#/components/schemas/Reminder'
+ *       401:
+ *         description: The user is not registered.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorMessageResponse'
+ *       403:
+ *         description: The user don't have the permission to access to other users' reminders.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorMessageResponse'
+ *       404:
+ *         description: Helped user not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorMessageResponse'
+ */
+router.get('/:id/reminders', requireUser, userController.getHelpedUserReminders);
 
 export default router;

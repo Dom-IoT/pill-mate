@@ -11,7 +11,7 @@ export default tseslint.config(
             ...tseslint.configs.recommended,
             importPlugin.flatConfigs.recommended,
         ],
-        files: ['**/*.{cjs,mjs,ts,tsx}'],
+        files: ['**/*.{js,cjs,mjs,ts,tsx}'],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.node,
@@ -27,6 +27,7 @@ export default tseslint.config(
             'import/order': 'error',
             'import/no-unresolved': 'off',
             '@typescript-eslint/no-require-imports': 'off',
+            '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
         },
     },
 );

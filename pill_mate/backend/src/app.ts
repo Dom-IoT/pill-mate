@@ -1,9 +1,13 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import morgan from 'morgan';
 
 import { createLogger } from './logger';
+import medicationRoutes from './routes/medicationRoutes';
+import reminderRoutes from './routes/reminderRoutes';
 import userRoutes from './routes/userRoutes';
-import { HTTP_400_BAD_REQUEST } from './status';
+import { homeAssistantHeaders } from './middlewares/homeAssistantHeaders';
+import { errorHandling } from './middlewares/errorHandling';
+import { applicationJson } from './middlewares/applicationJson';
 
 const app = express();
 
@@ -15,39 +19,15 @@ app.use(morgan('dev', {
     },
 }));
 
+app.use(applicationJson);
 app.use(express.json());
 
-app.use((request: Request, response: Response, next) => {
-    const homeAssistantUserId = request.get('x-remote-user-id');
-    if (homeAssistantUserId === undefined) {
-        response
-            .status(HTTP_400_BAD_REQUEST)
-            .json({ message: 'Missing required header: x-remote-user-id.' });
-        return;
-    }
-    request.homeAssistantUserId = homeAssistantUserId;
+app.use(homeAssistantHeaders);
 
-    const homeAssistantUserName = request.get('x-remote-user-name');
-    if (homeAssistantUserName === undefined) {
-        response
-            .status(HTTP_400_BAD_REQUEST)
-            .json({ message: 'Missing required header: x-remote-user-name.' });
-        return;
-    }
-    request.homeAssistantUserName = homeAssistantUserName;
-
-    const homeAssistantUserDisplayName = request.get('x-remote-user-display-name');
-    if (homeAssistantUserDisplayName === undefined) {
-        response
-            .status(HTTP_400_BAD_REQUEST)
-            .json({ message: 'Missing required header: x-remote-user-display-name.' });
-        return;
-    }
-    request.homeAssistantUserDisplayName = homeAssistantUserDisplayName;
-
-    next();
-});
-
+app.use('/medication', medicationRoutes);
+app.use('/reminder', reminderRoutes);
 app.use('/user', userRoutes);
+
+app.use(errorHandling);
 
 export default app;

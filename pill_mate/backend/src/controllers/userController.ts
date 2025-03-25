@@ -1,34 +1,53 @@
+import assert from 'assert';
+
 import { Request, Response } from 'express';
-import { User, isUserRole } from '../models/User';
-import { HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND } from '../status';
+import { User, UserRole, isUserRole } from '../models/User';
+import {
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_400_BAD_REQUEST,
+    HTTP_403_FORBIDDEN,
+    HTTP_404_NOT_FOUND,
+} from '../status';
+import { asyncErrorHandler, checkUnexpectedKeys } from '../utils';
+import { Reminder } from '../models/Reminder';
 
-export const me = async (request: Request, response: Response) => {
-    const user = await User.findOne({
-        where: {
-            homeAssistantUserId: request.homeAssistantUserId,
-        },
-    });
-    if (user === null) {
-        response
-            .status(HTTP_404_NOT_FOUND)
-            .json({ message: 'Not Found.' });
-        return;
-    }
-
+export const me = asyncErrorHandler(async (request: Request, response: Response) => {
+    assert(request.user !== undefined);
     response.json({
+        id: request.user.id,
         homeAssistantUserId: request.homeAssistantUserId,
         userName: request.homeAssistantUserName,
         userDisplayName: request.homeAssistantUserDisplayName,
-        role: user.role,
+        role: request.user.role,
     });
+});
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     CreateUser:
+ *       type: object
+ *       required:
+ *         - role
+ *       properties:
+ *         role:
+ *           $ref: '#/components/schemas/UserRole'
+ */
+type CreateUserBody = {
+    role: unknown,
 };
 
-export const createUser = async (request: Request, response: Response) => {
-    const { role } = request.body as { role?: unknown };
+export const createUser = asyncErrorHandler(async (request: Request, response: Response) => {
+    if (!checkUnexpectedKeys<CreateUserBody>(request.body, ['role'], response)) return;
+
+    const { role } = request.body as CreateUserBody;
+
     if (role === undefined) {
         response
             .status(HTTP_400_BAD_REQUEST)
-            .json({ message: 'Role is required.' });
+            .json({ message: 'role is required.' });
         return;
     }
 
@@ -51,12 +70,63 @@ export const createUser = async (request: Request, response: Response) => {
         return;
     }
 
-    await User.create({
+    const newUser = await User.create({
         homeAssistantUserId: request.homeAssistantUserId,
         role,
     });
 
     response
         .status(HTTP_201_CREATED)
-        .json({ message: 'User created successfully.' });
-};
+        .json({
+            id: newUser.id,
+            homeAssistantUserId: newUser.homeAssistantUserId,
+            userName: request.homeAssistantUserName,
+            userDisplayName: request.homeAssistantUserDisplayName,
+            role: newUser.role,
+        });
+});
+
+export const getHelpedUserReminders = asyncErrorHandler(async (
+    request: Request,
+    response: Response,
+) => {
+    assert(request.user !== undefined);
+    assert(request.params.id !== undefined);
+
+    if (!/^\d+$/.test(request.params.id)) {
+        response
+            .status(HTTP_400_BAD_REQUEST)
+            .json({ message: 'Invalid parameter: id.' });
+        return;
+    }
+
+    if (request.user.role === UserRole.HELPED) {
+        response
+            .status(HTTP_403_FORBIDDEN)
+            .json({ message: 'You do not have permission to access this resource.' });
+        return;
+    }
+
+    const id = parseInt(request.params.id, 10);
+
+    const helpedUsers = await request.user.getHelpedUsers({
+        where: { id },
+    });
+    assert(helpedUsers.length <= 1);
+    if (helpedUsers.length === 0) {
+        response
+            .status(HTTP_404_NOT_FOUND)
+            .json({ message: 'User not found.' });
+        return;
+    }
+
+    const reminders = await Reminder.findAll({
+        where: {
+            userId: helpedUsers[0].id,
+        },
+    });
+
+    response
+        .status(HTTP_200_OK)
+        .json(reminders);
+});
