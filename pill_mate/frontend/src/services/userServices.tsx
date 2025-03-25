@@ -1,26 +1,31 @@
-// frontend/src/services/userService.ts
-const API_URL = 'http://localhost:3000/api/user'; // Remplace par l'URL de ton backend
+import { UserRole } from '../models/UserRole';
 
-// Récupérer les informations de l'utilisateur connecté
+const API_URL = 'api';
+
 export const getUserInfo = async () => {
-    const response = await fetch(`${API_URL}/me`);
-    if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des informations de l\'utilisateur');
+    const response = await fetch(`${API_URL}/user/me`);
+    if (response.ok){
+        return response.json();
     }
-    return response.json();
+
+    if (response.status === 404) {
+        return null;
+    }
+    throw new Error('Erreur lors de la récupération des informations de l\'utilisateur');
 };
 
-// Créer un utilisateur
-export const createUser = async (role: string) => {
-    const response = await fetch(API_URL, {
+export const createUser = async (role: UserRole) => {
+    const response = await fetch(`${API_URL}/user`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ role }),
     });
+
     if (!response.ok) {
         throw new Error('Erreur lors de la création de l\'utilisateur');
     }
+
     return response.json();
 };
