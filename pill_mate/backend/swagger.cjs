@@ -31,7 +31,6 @@ const options = {
                             type: 'string',
                             // eslint-disable-next-line max-len
                             description: 'A descriptive message indicating the error that occurred.',
-                            example: 'Invalid request parameters.',
                         },
                     },
                 },

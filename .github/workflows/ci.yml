@@ -54,5 +54,8 @@ jobs:
       - name: Build backend
         run: npm run build
 
+      - name: Test backend
+        run: npm run test
+
       - name: Lint backend
         run: npm run lint

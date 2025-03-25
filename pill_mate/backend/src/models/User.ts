@@ -1,16 +1,39 @@
 import {
+    BelongsToManyAddAssociationMixin,
+    BelongsToManyAddAssociationsMixin,
+    BelongsToManyCountAssociationsMixin,
+    BelongsToManyCreateAssociationMixin,
+    BelongsToManyGetAssociationsMixin,
+    BelongsToManyHasAssociationMixin,
+    BelongsToManyHasAssociationsMixin,
+    BelongsToManyRemoveAssociationMixin,
+    BelongsToManyRemoveAssociationsMixin,
+    BelongsToManySetAssociationsMixin,
+    HasManyAddAssociationMixin,
+    HasManyAddAssociationsMixin,
+    HasManyCountAssociationsMixin,
+    HasManyCreateAssociationMixin,
+    HasManyGetAssociationsMixin,
+    HasManyHasAssociationMixin,
+    HasManyHasAssociationsMixin,
+    HasManyRemoveAssociationMixin,
+    HasManyRemoveAssociationsMixin,
+    HasManySetAssociationsMixin,
+} from 'sequelize';
+import {
     AllowNull,
     BelongsToMany,
     Column,
     DataType,
     ForeignKey,
+    HasMany,
     Length,
     Model,
     Table,
     Unique,
 } from 'sequelize-typescript';
 import { Reminder } from './Reminder';
-
+import { Medication } from './Medication';
 
 /**
  * @openapi
@@ -42,13 +65,17 @@ export const isUserRole = (value: unknown): value is UserRole => {
  *     UserInformations:
  *       type: object
  *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier of the user.
+ *           example: 1
  *         homeAssistantUserId:
  *           type: string
  *           description: Unique identifier of the user in Home Assistant.
  *           example: c355d2aaeee44e4e84ff8394fa4794a9
  *         userName:
  *           type: string
- *           description: TThe username of the user in the system.
+ *           description: The username of the user in the system.
  *           example: johndoe
  *         userDisplayName:
  *           type: string
@@ -74,11 +101,47 @@ export class User extends Model {
     @BelongsToMany(() => User, () => UserHelp)
     declare helpedUsers: User[];
 
+    declare getHelpedUsers: BelongsToManyGetAssociationsMixin<User>;
+    declare setHelpedUsers: BelongsToManySetAssociationsMixin<User, number>;
+    declare addHelpedUser: BelongsToManyAddAssociationMixin<User, number>;
+    declare addHelpedUsers: BelongsToManyAddAssociationsMixin<User, number>;
+    declare removeHelpedUser: BelongsToManyRemoveAssociationMixin<User, number>;
+    declare removeHelpedUsers: BelongsToManyRemoveAssociationsMixin<User, number>;
+    declare hasHelpedUser: BelongsToManyHasAssociationMixin<User, number>;
+    declare hasHelpedUsers: BelongsToManyHasAssociationsMixin<User, number>;
+    declare countHelpedUsers: BelongsToManyCountAssociationsMixin;
+    declare createHelpedUser: BelongsToManyCreateAssociationMixin<User>;
+
     @BelongsToMany(() => User, () => UserHelp)
     declare helpers: User[];
 
-    @BelongsToMany(() => Reminder, () => UserReminder)
+    @HasMany(() => Reminder)
     declare reminders: Reminder[];
+
+    declare getReminders: BelongsToManyGetAssociationsMixin<Reminder>;
+    declare setReminders: BelongsToManySetAssociationsMixin<Reminder, number>;
+    declare addReminder: BelongsToManyAddAssociationMixin<Reminder, number>;
+    declare addReminders: BelongsToManyAddAssociationsMixin<Reminder, number>;
+    declare removeReminder: BelongsToManyRemoveAssociationMixin<Reminder, number>;
+    declare removeReminders: BelongsToManyRemoveAssociationsMixin<Reminder, number>;
+    declare hasReminder: BelongsToManyHasAssociationMixin<Reminder, number>;
+    declare hasReminders: BelongsToManyHasAssociationsMixin<Reminder, number>;
+    declare countReminders: BelongsToManyCountAssociationsMixin;
+    declare createReminder: BelongsToManyCreateAssociationMixin<Reminder>;
+
+    @HasMany(() => Medication)
+    declare medications: Medication[];
+
+    declare getMedications: HasManyGetAssociationsMixin<Medication>;
+    declare setMedications: HasManySetAssociationsMixin<Medication, number>;
+    declare addMedication: HasManyAddAssociationMixin<Medication, number>;
+    declare addMedications: HasManyAddAssociationsMixin<Medication, number>;
+    declare removeMedication: HasManyRemoveAssociationMixin<Medication, number>;
+    declare removeMedications: HasManyRemoveAssociationsMixin<Medication, number>;
+    declare hasMedication: HasManyHasAssociationMixin<Medication, number>;
+    declare hasMedications: HasManyHasAssociationsMixin<Medication, number>;
+    declare countMedications: HasManyCountAssociationsMixin;
+    declare createMedication: HasManyCreateAssociationMixin<Medication>;
 }
 
 @Table({ timestamps: false })
@@ -92,18 +155,4 @@ export class UserHelp extends Model {
     @AllowNull(false)
     @Column
     declare helpedUserId: number;
-}
-
-@Table({ timestamps: false })
-export class UserReminder extends Model {
-
-    @ForeignKey(() => User)
-    @AllowNull(false)
-    @Column
-    declare userId: number;
-
-    @ForeignKey(() => Reminder)
-    @AllowNull(false)
-    @Column
-    declare reminderId: number;
 }
