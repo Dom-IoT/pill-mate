@@ -40,7 +40,6 @@ export const isDateValid = (dateStr: unknown): dateStr is string => {
 
     const date = new Date(dateStr);
     const [year, month, day] = dateStr.split('-').map(x => parseInt(x, 10));
-    // console.log(date, year, month, day, date.getMonth());
 
     return date.getFullYear() === year &&
         date.getMonth() + 1 === month &&
