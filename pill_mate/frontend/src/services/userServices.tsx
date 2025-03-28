@@ -1,8 +1,9 @@
 import { UserRole } from '../models/UserRole';
+import { User } from '../models/User';
 
 const API_URL = 'api';
 
-export const getUserInfo = async () => {
+export const getUserInfo = async (): Promise<User | null> => {
     const response = await fetch(`${API_URL}/user/me`);
     if (response.ok){
         return response.json();
@@ -14,7 +15,7 @@ export const getUserInfo = async () => {
     throw new Error('Erreur lors de la récupération des informations de l\'utilisateur');
 };
 
-export const createUser = async (role: UserRole) => {
+export const createUser = async (role: UserRole): Promise<User> => {
     const response = await fetch(`${API_URL}/user`, {
         method: 'POST',
         headers: {

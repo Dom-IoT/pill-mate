@@ -1,12 +1,6 @@
 import { createContext } from 'react';
 import { UserRole } from '../models/UserRole';
-
-interface User {
-  homeAssistantUserId: string;
-  userName: string;
-  userDisplayName: string;
-  role: UserRole;
-}
+import { User } from '../models/User';
 
 export interface UserContextType {
   user: User | null;
