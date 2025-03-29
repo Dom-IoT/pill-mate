@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_400_BAD_REQUEST } from './status';
 
-export const asyncErrorHandler = <T extends Request>(
-    func: (request: T, response: Response) => Promise<void>,
+export const asyncErrorHandler = (
+    func: (request: Request, response: Response) => Promise<void>,
 ) => {
-    return (request: T, response: Response, next: NextFunction) => {
-        Promise.resolve(func(request, response)).catch(next);
+    return async (request: Request, response: Response, next: NextFunction) => {
+        await Promise.resolve(func(request, response)).catch(next);
     };
 };
 
 export const checkUnexpectedKeys = <T extends object>(
-    body: T,
+    body: object,
     allowedKeys: Array<keyof T>,
     response: Response,
 ): boolean => {

@@ -27,13 +27,25 @@ beforeEach(() => {
 });
 
 describe('GET /user/me', () => {
-    it('should return 400 if the x-remote-id header is missing', async () => {
+    it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
             .get('/user/me')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({
             message: 'Missing required header: x-remote-user-id.',
+        });
+        expect(response.status).toBe(400);
+    });
+
+    it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
+        const response = await request(app)
+            .get('/user/me')
+            .set('x-remote-user-id', 'bad home assistant id')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe');
+        expect(response.body).toStrictEqual({
+            message: 'Invalid home assistant user id in x-remote-user-id.',
         });
         expect(response.status).toBe(400);
     });
@@ -70,10 +82,10 @@ describe('GET /user/me', () => {
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({ message: 'User not registered.' });
         expect(response.status).toBe(401);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
     });
 
     it('should return user details if the user exists in the database', async () => {
@@ -96,10 +108,10 @@ describe('GET /user/me', () => {
             role: UserRole.HELPED,
         });
         expect(response.status).toBe(200);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
     });
 });
 
@@ -112,7 +124,7 @@ describe('POST /user/', () => {
         expect(response.status).toBe(415);
     });
 
-    it('should return 400 if the x-remote-id header is missing', async () => {
+    it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
             .post('/user/')
             .set('Content-type', 'application/json')
@@ -120,6 +132,19 @@ describe('POST /user/', () => {
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({
             message: 'Missing required header: x-remote-user-id.',
+        });
+        expect(response.status).toBe(400);
+    });
+
+    it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
+        const response = await request(app)
+            .post('/user/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'bad home assistant id')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe');
+        expect(response.body).toStrictEqual({
+            message: 'Invalid home assistant user id in x-remote-user-id.',
         });
         expect(response.status).toBe(400);
     });
@@ -200,11 +225,11 @@ describe('POST /user/', () => {
             .send({ role: UserRole.HELPED });
         expect(response.body).toStrictEqual({ message: 'The user already exists.' });
         expect(response.status).toBe(400);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             attributes: ['id'],
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
     });
 
     it('should create the user', async () => {
@@ -230,27 +255,39 @@ describe('POST /user/', () => {
             role: UserRole.HELPED,
         });
         expect(response.status).toBe(201);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             attributes: ['id'],
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(User.create).toHaveBeenCalledTimes(1);
         expect(User.create).toHaveBeenCalledWith({
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        expect(User.create).toHaveBeenCalledTimes(1);
     });
 });
 
 describe('GET /user/:id/reminders', () => {
-    it('should return 400 if the x-remote-id header is missing', async () => {
+    it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
             .get('/user/2/reminders')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({
             message: 'Missing required header: x-remote-user-id.',
+        });
+        expect(response.status).toBe(400);
+    });
+
+    it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
+        const response = await request(app)
+            .get('/user/2/reminders')
+            .set('x-remote-user-id', 'bad home assistant id')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe');
+        expect(response.body).toStrictEqual({
+            message: 'Invalid home assistant user id in x-remote-user-id.',
         });
         expect(response.status).toBe(400);
     });
@@ -287,10 +324,10 @@ describe('GET /user/:id/reminders', () => {
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({ message: 'User not registered.' });
         expect(response.status).toBe(401);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
     });
 
     it('should return 400 if the id parameter is invalid', async () => {
@@ -307,10 +344,10 @@ describe('GET /user/:id/reminders', () => {
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({ message: 'Invalid parameter: id.' });
         expect(response.status).toBe(400);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
     });
 
     it('should return 403 if the is as the role helped', async () => {
@@ -329,10 +366,10 @@ describe('GET /user/:id/reminders', () => {
             message: 'You do not have permission to access this resource.',
         });
         expect(response.status).toBe(403);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
     });
 
     it('should return 404 if the user as no helped users', async () => {
@@ -352,15 +389,15 @@ describe('GET /user/:id/reminders', () => {
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({ message: 'User not found.' });
         expect(response.status).toBe(404);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(getHelpedUsers).toHaveBeenCalledTimes(1);
         expect(getHelpedUsers).toHaveBeenCalledWith({
             where: { id: 2 },
             attributes: ['id'],
         });
-        expect(getHelpedUsers).toHaveBeenCalledTimes(1);
     });
 
     it('should return the reminders of an helped user', async () => {
@@ -418,12 +455,12 @@ describe('GET /user/:id/reminders', () => {
             },
         ]);
         expect(response.status).toBe(200);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(getReminders).toHaveBeenCalledWith();
         expect(getReminders).toHaveBeenCalledTimes(1);
+        expect(getReminders).toHaveBeenCalledWith();
     });
 
     it('should return the requested user reminders', async () => {
@@ -482,16 +519,16 @@ describe('GET /user/:id/reminders', () => {
             },
         ]);
         expect(response.status).toBe(200);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(getHelpedUsers).toHaveBeenCalledTimes(1);
         expect(getHelpedUsers).toHaveBeenCalledWith({
             where: { id: 2 },
             attributes: ['id'],
         });
-        expect(getHelpedUsers).toHaveBeenCalledTimes(1);
-        expect(Reminder.findAll).toHaveBeenCalledWith({ where: { userId: 2 } });
         expect(Reminder.findAll).toHaveBeenCalledTimes(1);
+        expect(Reminder.findAll).toHaveBeenCalledWith({ where: { userId: 2 } });
     });
 });

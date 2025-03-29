@@ -5,7 +5,7 @@ const NODE_ENV = process.env.NODE_ENV || 'production';
 const log_levels: { [key: string]: string } = {
     production: 'info',
     developement: 'debug',
-    test: 'error',
+    test: 'off',
 };
 
 export const createLogger = (label: string) => winston.createLogger({

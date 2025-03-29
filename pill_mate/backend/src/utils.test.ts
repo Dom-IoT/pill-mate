@@ -1,16 +1,96 @@
-import { isDateValid, isHomeAssistantUserIdValid, isTimeValid } from './utils';
+import { Request, Response } from 'express';
+
+import {
+    asyncErrorHandler,
+    checkUnexpectedKeys,
+    isDateValid,
+    isHomeAssistantUserIdValid,
+    isTimeValid,
+} from './utils';
+
 
 describe('asyncErrorHandler function', () => {
-    // TODO
-    it('TODO', () => {
-        expect(true).toBe(false);
+    it('should catch the error and call the next function', async () => {
+        const next = jest.fn();
+        const func = asyncErrorHandler(async (_request, _response) => {
+            throw new Error('test error');
+        });
+        await func({} as Request, {} as Response, next);
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith(new Error('test error'));
     });
 });
 
+type TestBody = {
+    key1: unknown,
+    key2: unknown,
+};
+
 describe('checkUnexpectedKeys function', () => {
-    // TODO
-    it('TODO', () => {
-        expect(true).toBe(false);
+    it('should return true', () => {
+        const response = {
+            status: jest.fn(),
+            json: jest.fn(),
+        };
+        response.status.mockReturnValue(response);
+        expect(checkUnexpectedKeys<TestBody>(
+            { key1: 0, key2: 0 } as TestBody,
+            ['key1', 'key2'],
+            response as unknown as Response,
+        )).toBe(true);
+        expect(response.status).toHaveBeenCalledTimes(0);
+        expect(response.json).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return true if the keys are not present', () => {
+        const response = {
+            status: jest.fn(),
+            json: jest.fn(),
+        };
+        response.status.mockReturnValue(response);
+        expect(checkUnexpectedKeys<TestBody>(
+            {} as TestBody,
+            ['key1', 'key2'],
+            response as unknown as Response,
+        )).toBe(true);
+        expect(response.status).toHaveBeenCalledTimes(0);
+        expect(response.json).toHaveBeenCalledTimes(0);
+    });
+
+    it('should return false if there is an unexpected key', () => {
+        const response = {
+            status: jest.fn(),
+            json: jest.fn(),
+        };
+        response.status.mockReturnValue(response);
+        expect(checkUnexpectedKeys<TestBody>(
+            { badKey: 0 },
+            ['key1', 'key2'],
+            response as unknown as Response,
+        )).toBe(false);
+        expect(response.status).toHaveBeenCalledTimes(1);
+        expect(response.status).toHaveBeenCalledWith(400);
+        expect(response.json).toHaveBeenCalledTimes(1);
+        expect(response.json).toHaveBeenCalledWith({ message: 'Unexpected key: badKey' });
+    });
+
+    it('should return false if there is an multiple unexpecteds keys', () => {
+        const response = {
+            status: jest.fn(),
+            json: jest.fn(),
+        };
+        response.status.mockReturnValue(response);
+        expect(checkUnexpectedKeys<TestBody>(
+            { badKey1: 0, badKey2: 0 },
+            ['key1', 'key2'],
+            response as unknown as Response,
+        )).toBe(false);
+        expect(response.status).toHaveBeenCalledTimes(1);
+        expect(response.status).toHaveBeenCalledWith(400);
+        expect(response.json).toHaveBeenCalledTimes(1);
+        expect(response.json).toHaveBeenCalledWith({
+            message: 'Unexpected keys: badKey1, badKey2',
+        });
     });
 });
 
