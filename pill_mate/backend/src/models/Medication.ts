@@ -22,6 +22,10 @@ import { User } from './User';
  *     Medication:
  *       type: object
  *       properties:
+ *         id:
+ *           type: integer
+ *           description: Unique identifier of the medication.
+ *           example: 1
  *         name:
  *           type: string
  *           description: The name of the medication.

@@ -156,7 +156,7 @@ export const createReminder = asyncErrorHandler(async (request: Request, respons
         if (request.user.role === UserRole.HELPED) {
             response
                 .status(HTTP_403_FORBIDDEN)
-                .json({ message: 'Your not allowed to add a reminder for an other user.' });
+                .json({ message: 'You are not allowed to add a reminder for an other user.' });
             return;
         }
 
@@ -275,7 +275,7 @@ export const patchReminder = asyncErrorHandler(async (request: Request, response
         if (request.user.role === UserRole.HELPED) {
             response
                 .status(HTTP_403_FORBIDDEN)
-                .json({ message: 'Your not allowed to modify this reminder.' });
+                .json({ message: 'You are not allowed to modify this reminder.' });
             return;
         }
 
@@ -287,7 +287,7 @@ export const patchReminder = asyncErrorHandler(async (request: Request, response
         if (helpedUsers.length === 0) {
             response
                 .status(HTTP_403_FORBIDDEN)
-                .json({ message: 'Your not allowed to modify this reminder.' });
+                .json({ message: 'You are not allowed to modify this reminder.' });
             return;
         }
     }
@@ -431,7 +431,7 @@ export const deleteReminder = asyncErrorHandler(async (request: Request, respons
         if (request.user.role === UserRole.HELPED) {
             response
                 .status(HTTP_403_FORBIDDEN)
-                .json({ message: 'Your not allowed to delete this reminder.' });
+                .json({ message: 'You are not allowed to delete this reminder.' });
             return;
         }
 
@@ -443,7 +443,7 @@ export const deleteReminder = asyncErrorHandler(async (request: Request, respons
         if (helpedUsers.length === 0) {
             response
                 .status(HTTP_403_FORBIDDEN)
-                .json({ message: 'Your not allowed to delete this reminder.' });
+                .json({ message: 'You are not allowed to delete this reminder.' });
             return;
         }
     }

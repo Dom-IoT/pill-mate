@@ -3,7 +3,7 @@ import { isMedicationUnit, MedicationUnit } from './MedicationUnit';
 describe('isMedicationUnit function', () => {
     it('should return true for valid medication unit', () => {
         expect(isMedicationUnit(MedicationUnit.TABLET)).toBe(true);
-        expect(isMedicationUnit(MedicationUnit.CAPSULE)).toBe(true);
+        expect(isMedicationUnit(MedicationUnit.PILL)).toBe(true);
         expect(isMedicationUnit(MedicationUnit.ML)).toBe(true);
         expect(isMedicationUnit(MedicationUnit.DROPS)).toBe(true);
         expect(isMedicationUnit(MedicationUnit.UNIT)).toBe(true);

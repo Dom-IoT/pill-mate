@@ -7,7 +7,7 @@
  *       description: >
  *          The unit of the quantity of medication.
  *           * `0` - Tablet.
- *           * `1` - Capsule.
+ *           * `1` - Pill.
  *           * `2` - Ml, milliliter.
  *           * `3` - Drops.
  *           * `4` - Unit, no unit.
@@ -16,7 +16,7 @@
  */
 export enum MedicationUnit {
     TABLET,
-    CAPSULE,
+    PILL,
     ML,
     DROPS,
     UNIT,

@@ -2,21 +2,13 @@ import request from 'supertest';
 
 import app from '../app';
 import { Medication } from '../models/Medication';
-import { Reminder } from '../models/Reminder';
 import { User } from '../models/User';
 import { UserRole } from '../models/UserRole';
+import { MedicationUnit } from '../models/MedicationUnit';
 
 jest.mock('../models/Medication', () => {
     return {
         Medication: {
-            findByPk: jest.fn(),
-        },
-    };
-});
-
-jest.mock('../models/Reminder', () => {
-    return {
-        Reminder: {
             findByPk: jest.fn(),
         },
     };
@@ -30,16 +22,14 @@ jest.mock('../models/User', () => {
     };
 });
 
-jest.useFakeTimers();
-
 beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('GET /reminder/', () => {
+describe('GET /medication/', () => {
     it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
-            .get('/reminder/')
+            .get('/medication/')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({
@@ -50,7 +40,7 @@ describe('GET /reminder/', () => {
 
     it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
         const response = await request(app)
-            .get('/reminder/')
+            .get('/medication/')
             .set('x-remote-user-id', 'bad home assistant id')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
@@ -62,7 +52,7 @@ describe('GET /reminder/', () => {
 
     it('should return 400 if the x-remote-user-name header is missing', async () => {
         const response = await request(app)
-            .get('/reminder/')
+            .get('/medication/')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual({
@@ -73,7 +63,7 @@ describe('GET /reminder/', () => {
 
     it('should return 400 if the x-remote-user-display-name header is missing', async () => {
         const response = await request(app)
-            .get('/reminder/')
+            .get('/medication/')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe');
         expect(response.body).toStrictEqual({
@@ -86,7 +76,7 @@ describe('GET /reminder/', () => {
         (User.findOne as jest.Mock).mockResolvedValue(null);
 
         const response = await request(app)
-            .get('/reminder/')
+            .get('/medication/')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
@@ -98,25 +88,22 @@ describe('GET /reminder/', () => {
         });
     });
 
-    it('should return the user reminders', async () => {
-        const getReminders = jest.fn();
-        (getReminders as jest.Mock).mockResolvedValue([
+    it('should return the user medications', async () => {
+        const getMedications = jest.fn();
+        (getMedications as jest.Mock).mockResolvedValue([
             {
                 id: 1,
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
+                indication: 'The red pills.',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 1,
             },
             {
-                id: 2,
-                time: '19:00',
-                frequency: 1,
+                id: 1,
+                name: 'Syrup',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.ML,
                 userId: 1,
             },
         ]);
@@ -124,31 +111,28 @@ describe('GET /reminder/', () => {
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
-            getReminders,
+            getMedications,
         });
 
         const response = await request(app)
-            .get('/reminder/')
+            .get('/medication/')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
         expect(response.body).toStrictEqual([
             {
                 id: 1,
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
+                indication: 'The red pills.',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 1,
             },
             {
-                id: 2,
-                time: '19:00',
-                frequency: 1,
+                id: 1,
+                name: 'Syrup',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.ML,
                 userId: 1,
             },
         ]);
@@ -157,14 +141,14 @@ describe('GET /reminder/', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(getReminders).toHaveBeenCalledTimes(1);
-        expect(getReminders).toHaveBeenCalledWith();
+        expect(getMedications).toHaveBeenCalledTimes(1);
+        expect(getMedications).toHaveBeenCalledWith();
     });
 });
 
-describe('POST /reminder/', () => {
+describe('POST /medication/', () => {
     it('should return 415 if the content-type header is not application/json', async () => {
-        const response = await request(app).post('/reminder/');
+        const response = await request(app).post('/medication/');
         expect(response.body).toStrictEqual({
             message: 'Unsupported content type. Only application/json is allowed.',
         });
@@ -173,7 +157,7 @@ describe('POST /reminder/', () => {
 
     it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
@@ -185,7 +169,7 @@ describe('POST /reminder/', () => {
 
     it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'bad home assistant id')
             .set('x-remote-user-name', 'johndoe')
@@ -198,7 +182,7 @@ describe('POST /reminder/', () => {
 
     it('should return 400 if the x-remote-user-name header is missing', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-display-name', 'John Doe');
@@ -210,7 +194,7 @@ describe('POST /reminder/', () => {
 
     it('should return 400 if the x-remote-user-display-name header is missing', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe');
@@ -222,7 +206,7 @@ describe('POST /reminder/', () => {
 
     it('should return 400 if there is an unexpected key in the request body', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -232,83 +216,64 @@ describe('POST /reminder/', () => {
         expect(response.status).toBe(400);
     });
 
-    it('should return 400 if the time is missing', async () => {
+    it('should return 400 if the name is missing', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                frequency: 1,
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
             });
-        expect(response.body).toStrictEqual({ message: 'time is required.' });
+        expect(response.body).toStrictEqual({ message: 'name is required.' });
         expect(response.status).toBe(400);
     });
 
-    it('should return 400 if the time is invalid', async () => {
+    it('should return 400 if the name is invalid', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: 'bad time',
-                frequency: 1,
+                name: 0,
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
             });
-        expect(response.body).toStrictEqual({ message: 'Invalid time.' });
+        expect(response.body).toStrictEqual({ message: 'Invalid name.' });
         expect(response.status).toBe(400);
     });
 
-    it('should return 400 if the frequency is missing', async () => {
+    it('should return 400 if the indication is invalid', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                quantity: 1,
-                medicationId: 1,
+                name: 'Paracetamol',
+                indication: 0,
+                quantity: 'bad quantity',
+                unit: MedicationUnit.PILL,
             });
-        expect(response.body).toStrictEqual({ message: 'frequency is required.' });
-        expect(response.status).toBe(400);
-    });
-
-    it('should return 400 if the frequency is invalid', async () => {
-        const response = await request(app)
-            .post('/reminder/')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({
-                time: '12:00',
-                frequency: 'bad frequency',
-                quantity: 1,
-                medicationId: 1,
-            });
-        expect(response.body).toStrictEqual({ message: 'Invalid frequency.' });
+        expect(response.body).toStrictEqual({ message: 'Invalid indication.' });
         expect(response.status).toBe(400);
     });
 
     it('should return 400 if the quantity is missing', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
-                medicationId: 1,
+                name: 'Paracetamol',
+                unit: MedicationUnit.PILL,
             });
         expect(response.body).toStrictEqual({ message: 'quantity is required.' });
         expect(response.status).toBe(400);
@@ -316,66 +281,62 @@ describe('POST /reminder/', () => {
 
     it('should return 400 if the quantity is invalid', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 'bad quantity',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
             });
         expect(response.body).toStrictEqual({ message: 'Invalid quantity.' });
         expect(response.status).toBe(400);
     });
 
-    it('should return 400 if the medicationId is missing', async () => {
+    it('should return 400 if the unit is missing', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
             });
-        expect(response.body).toStrictEqual({ message: 'medicationId is required.' });
+        expect(response.body).toStrictEqual({ message: 'unit is required.' });
         expect(response.status).toBe(400);
     });
 
-    it('should return 400 if the medicationId is invalid', async () => {
+    it('should return 400 if the unit is invalid', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 'bad medicationId',
+                unit: 'bad unit',
             });
-        expect(response.body).toStrictEqual({ message: 'Invalid medicationId.' });
+        expect(response.body).toStrictEqual({ message: 'Invalid unit.' });
         expect(response.status).toBe(400);
     });
 
     it('should return 400 if the userId is invalid', async () => {
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 'bad userId',
             });
         expect(response.body).toStrictEqual({ message: 'Invalid userId.' });
@@ -391,20 +352,19 @@ describe('POST /reminder/', () => {
                 role: UserRole.HELPED,
             });
             const response = await request(app)
-                .post('/reminder/')
+                .post('/medication/')
                 .set('Content-type', 'application/json')
                 .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
                 .set('x-remote-user-name', 'johndoe')
                 .set('x-remote-user-display-name', 'John Doe')
                 .send({
-                    time: '12:00',
-                    frequency: 1,
+                    name: 'Paracetamol',
                     quantity: 1,
-                    medicationId: 1,
+                    unit: MedicationUnit.PILL,
                     userId: 2,
                 });
             expect(response.body).toStrictEqual({
-                message: 'You are not allowed to add a reminder for an other user.',
+                message: 'You are not allowed to add a medication for an other user.',
             });
             expect(response.status).toBe(403);
             expect(User.findOne).toHaveBeenCalledTimes(1);
@@ -424,16 +384,15 @@ describe('POST /reminder/', () => {
             getHelpedUsers,
         });
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 2,
             });
         expect(response.body).toStrictEqual({ message: 'Helped user not found.' });
@@ -449,97 +408,41 @@ describe('POST /reminder/', () => {
         });
     });
 
-    it('should return 404 if the medication is not in the database', async () => {
-        const getMedications = jest.fn();
-        getMedications.mockResolvedValue([]);
-        const getHelpedUsers = jest.fn();
-        getHelpedUsers.mockResolvedValue([{
-            id: 2,
-            homeAssistantUserId: 'ff9e35d488ef5a2125536bcb674fd9fb',
-            role: UserRole.HELPED,
-            getMedications,
-        }]);
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPER,
-            getHelpedUsers,
-        });
-        const response = await request(app)
-            .post('/reminder/')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({
-                time: '12:00',
-                frequency: 1,
-                quantity: 1,
-                medicationId: 1,
-                userId: 2,
-            });
-        expect(response.body).toStrictEqual({ message: 'Medication not found.' });
-        expect(response.status).toBe(404);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(getHelpedUsers).toHaveBeenCalledTimes(1);
-        expect(getHelpedUsers).toHaveBeenCalledWith({
-            where: { id: 2 },
-            attributes: ['id'],
-        });
-        expect(getMedications).toHaveBeenCalledTimes(1);
-        expect(getMedications).toHaveBeenCalledWith({
-            where: { id: 1 },
-            attributes: ['id'],
-        });
-    });
-
     it(
-        'should create the reminder if the user has the role helped and their userId matches ' +
+        'should create the medication if the user has the role helped and their userId matches ' +
         'their own',
         async () => {
-            const getMedications = jest.fn();
-            getMedications.mockResolvedValue([{ id: 1 }]);
-            const createReminder = jest.fn();
-            createReminder.mockResolvedValue({
+            const createMedication = jest.fn();
+            createMedication.mockResolvedValue({
                 id: 1,
-                time: '12:00',
-                nextDate: '2025-03-13',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 1,
             });
             (User.findOne as jest.Mock).mockResolvedValue({
                 id: 1,
                 homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
                 role: UserRole.HELPED,
-                createReminder,
-                getMedications,
+                createMedication,
             });
-            jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
             const response = await request(app)
-                .post('/reminder/')
+                .post('/medication/')
                 .set('Content-type', 'application/json')
                 .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
                 .set('x-remote-user-name', 'johndoe')
                 .set('x-remote-user-display-name', 'John Doe')
                 .send({
-                    time: '12:00',
-                    frequency: 1,
+                    name: 'Paracetamol',
                     quantity: 1,
-                    medicationId: 1,
+                    unit: MedicationUnit.PILL,
                     userId: 1,
                 });
             expect(response.body).toStrictEqual({
                 id: 1,
-                time: '12:00',
-                nextDate: '2025-03-13',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 1,
             });
             expect(response.status).toBe(201);
@@ -547,65 +450,46 @@ describe('POST /reminder/', () => {
             expect(User.findOne).toHaveBeenCalledWith({
                 where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             });
-            expect(getMedications).toHaveBeenCalledTimes(1);
-            expect(getMedications).toHaveBeenCalledWith({
-                where: { id: 1 },
-                attributes: ['id'],
-            });
-            expect(createReminder).toHaveBeenCalledTimes(1);
-            expect(createReminder).toHaveBeenCalledWith({
-                time: '12:00',
-                nextDate: expect.any(Date),
-                frequency: 1,
+            expect(createMedication).toHaveBeenCalledTimes(1);
+            expect(createMedication).toHaveBeenCalledWith({
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
             });
-            expect(createReminder.mock.calls[0][0].nextDate.getTime())
-                .toBe(new Date('2025-03-13T10:00:00Z').getTime());
         },
     );
 
-    it('should create the reminder with the nextDate set to tomorrow', async () => {
-        const getMedications = jest.fn();
-        getMedications.mockResolvedValue([{ id: 1 }]);
-        const createReminder = jest.fn();
-        createReminder.mockResolvedValue({
+    it('should create the medication with the userId of the currently logged user', async () => {
+        const createMedication = jest.fn();
+        createMedication.mockResolvedValue({
             id: 1,
-            time: '12:00',
-            nextDate: '2025-03-14',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
-            createReminder,
-            getMedications,
+            createMedication,
         });
-        jest.setSystemTime(new Date('2025-03-13T14:00:00Z'));
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
-                userId: 1,
+                unit: MedicationUnit.PILL,
             });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '12:00',
-            nextDate: '2025-03-14',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         expect(response.status).toBe(201);
@@ -613,64 +497,45 @@ describe('POST /reminder/', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(getMedications).toHaveBeenCalledTimes(1);
-        expect(getMedications).toHaveBeenCalledWith({
-            where: { id: 1 },
-            attributes: ['id'],
-        });
-        expect(createReminder).toHaveBeenCalledTimes(1);
-        expect(createReminder).toHaveBeenCalledWith({
-            time: '12:00',
-            nextDate: expect.any(Date),
-            frequency: 1,
+        expect(createMedication).toHaveBeenCalledTimes(1);
+        expect(createMedication).toHaveBeenCalledWith({
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
         });
-        expect(createReminder.mock.calls[0][0].nextDate.getTime())
-            .toBe(new Date('2025-03-14T14:00:00Z').getTime());
-
     });
 
-    it('should create the reminder with the userId of the currently logged user', async () => {
-        const getMedications = jest.fn();
-        getMedications.mockResolvedValue([{ id: 1 }]);
-        const createReminder = jest.fn();
-        createReminder.mockResolvedValue({
+    it('should create the medication with no indication', async () => {
+        const createMedication = jest.fn();
+        createMedication.mockResolvedValue({
             id: 1,
-            time: '12:00',
-            nextDate: '2025-03-13',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
-            createReminder,
-            getMedications,
+            createMedication,
         });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
             });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '12:00',
-            nextDate: '2025-03-13',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         expect(response.status).toBe(201);
@@ -678,34 +543,118 @@ describe('POST /reminder/', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(getMedications).toHaveBeenCalledTimes(1);
-        expect(getMedications).toHaveBeenCalledWith({
-            where: { id: 1 },
-            attributes: ['id'],
-        });
-        expect(createReminder).toHaveBeenCalledTimes(1);
-        expect(createReminder).toHaveBeenCalledWith({
-            time: '12:00',
-            nextDate: expect.any(Date),
-            frequency: 1,
+        expect(createMedication).toHaveBeenCalledTimes(1);
+        expect(createMedication).toHaveBeenCalledWith({
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
         });
-        expect(createReminder.mock.calls[0][0].nextDate.getTime())
-            .toBe(new Date('2025-03-13T10:00:00Z').getTime());
     });
 
-    it('should create the reminder for an helped user', async () => {
-        const getMedications = jest.fn();
-        getMedications.mockResolvedValue([{ id: 1 }]);
-        const createReminder = jest.fn();
-        createReminder.mockResolvedValue({
+    it('should create the medication with no indication', async () => {
+        const createMedication = jest.fn();
+        createMedication.mockResolvedValue({
             id: 1,
-            time: '12:00',
-            nextDate: '2025-03-13',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
+            userId: 1,
+        });
+        (User.findOne as jest.Mock).mockResolvedValue({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+            createMedication,
+        });
+        const response = await request(app)
+            .post('/medication/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({
+                name: 'Paracetamol',
+                indication: null,
+                quantity: 1,
+                unit: MedicationUnit.PILL,
+            });
+        expect(response.body).toStrictEqual({
+            id: 1,
+            name: 'Paracetamol',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+            userId: 1,
+        });
+        expect(response.status).toBe(201);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(User.findOne).toHaveBeenCalledWith({
+            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
+        });
+        expect(createMedication).toHaveBeenCalledTimes(1);
+        expect(createMedication).toHaveBeenCalledWith({
+            name: 'Paracetamol',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+        });
+    });
+
+    it('should create the medication with an indication', async () => {
+        const createMedication = jest.fn();
+        createMedication.mockResolvedValue({
+            id: 1,
+            name: 'Paracetamol',
+            indication: 'An indication.',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+            userId: 1,
+        });
+        (User.findOne as jest.Mock).mockResolvedValue({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+            createMedication,
+        });
+        const response = await request(app)
+            .post('/medication/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({
+                name: 'Paracetamol',
+                indication: 'An indication.',
+                quantity: 1,
+                unit: MedicationUnit.PILL,
+            });
+        expect(response.body).toStrictEqual({
+            id: 1,
+            name: 'Paracetamol',
+            indication: 'An indication.',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+            userId: 1,
+        });
+        expect(response.status).toBe(201);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(User.findOne).toHaveBeenCalledWith({
+            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
+        });
+        expect(createMedication).toHaveBeenCalledTimes(1);
+        expect(createMedication).toHaveBeenCalledWith({
+            name: 'Paracetamol',
+            indication: 'An indication.',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+        });
+    });
+
+    it('should create the medication for an helped user', async () => {
+        const createMedication = jest.fn();
+        createMedication.mockResolvedValue({
+            id: 1,
+            name: 'Paracetamol',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
             userId: 2,
         });
         const getHelpedUsers = jest.fn();
@@ -713,8 +662,7 @@ describe('POST /reminder/', () => {
             id: 2,
             homeAssistantUserId: 'ff9e35d488ef5a2125536bcb674fd9fb',
             role: UserRole.HELPED,
-            getMedications,
-            createReminder,
+            createMedication,
         }]);
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
@@ -722,27 +670,23 @@ describe('POST /reminder/', () => {
             role: UserRole.HELPER,
             getHelpedUsers,
         });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
         const response = await request(app)
-            .post('/reminder/')
+            .post('/medication/')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 2,
             });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '12:00',
-            nextDate: '2025-03-13',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 2,
         });
         expect(response.status).toBe(201);
@@ -755,27 +699,19 @@ describe('POST /reminder/', () => {
             where: { id: 2 },
             attributes: ['id'],
         });
-        expect(getMedications).toHaveBeenCalledTimes(1);
-        expect(getMedications).toHaveBeenCalledWith({
-            where: { id: 1 },
-            attributes: ['id'],
-        });
-        expect(createReminder).toHaveBeenCalledTimes(1);
-        expect(createReminder).toHaveBeenCalledWith({
-            time: '12:00',
-            nextDate: expect.any(Date),
-            frequency: 1,
+        expect(createMedication).toHaveBeenCalledTimes(1);
+        expect(createMedication).toHaveBeenCalledWith({
+            name: 'Paracetamol',
+            indication: undefined,
             quantity: 1,
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
         });
-        expect(createReminder.mock.calls[0][0].nextDate.getTime())
-            .toBe(new Date('2025-03-13T10:00:00Z').getTime());
     });
 });
 
-describe('PATCH /reminder/:id', () => {
+describe('PATCH /medication/:id', () => {
     it('should return 415 if the content-type header is not application/json', async () => {
-        const response = await request(app).patch('/reminder/1');
+        const response = await request(app).patch('/medication/1');
         expect(response.body).toStrictEqual({
             message: 'Unsupported content type. Only application/json is allowed.',
         });
@@ -784,7 +720,7 @@ describe('PATCH /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
@@ -796,7 +732,7 @@ describe('PATCH /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'bad home assistant id')
             .set('x-remote-user-name', 'johndoe')
@@ -809,7 +745,7 @@ describe('PATCH /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-name header is missing', async () => {
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-display-name', 'John Doe');
@@ -821,7 +757,7 @@ describe('PATCH /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-display-name header is missing', async () => {
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe');
@@ -835,7 +771,7 @@ describe('PATCH /reminder/:id', () => {
         (User.findOne as jest.Mock).mockResolvedValue(null);
 
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -856,7 +792,7 @@ describe('PATCH /reminder/:id', () => {
         });
 
         const response = await request(app)
-            .patch('/reminder/invalid_id')
+            .patch('/medication/invalid_id')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -869,69 +805,68 @@ describe('PATCH /reminder/:id', () => {
         });
     });
 
-    it('should return 404 if the reminder is not found', async () => {
+    it('should return 404 if the medication is not found', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue(null);
+        (Medication.findByPk as jest.Mock).mockResolvedValue(null);
 
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
-        expect(response.body).toStrictEqual({ message: 'Reminder not found.' });
+        expect(response.body).toStrictEqual({ message: 'Medication not found.' });
         expect(response.status).toBe(404);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
     it(
-        'should return 403 if the reminder belongs to another user and the user role is helped',
+        'should return 403 if the medication belongs to another user and the user role is helped',
         async () => {
             (User.findOne as jest.Mock).mockResolvedValue({
                 id: 1,
                 homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
                 role: UserRole.HELPED,
             });
-            (Reminder.findByPk as jest.Mock).mockResolvedValue({
+            (Medication.findByPk as jest.Mock).mockResolvedValue({
                 id: 1,
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 2,
             });
 
             const response = await request(app)
-                .patch('/reminder/1')
+                .patch('/medication/1')
                 .set('Content-type', 'application/json')
                 .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
                 .set('x-remote-user-name', 'johndoe')
                 .set('x-remote-user-display-name', 'John Doe');
             expect(response.body).toStrictEqual({
-                message: 'You are not allowed to modify this reminder.',
+                message: 'You are not allowed to modify this medication.',
             });
             expect(response.status).toBe(403);
             expect(User.findOne).toHaveBeenCalledTimes(1);
             expect(User.findOne).toHaveBeenCalledWith({
                 where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             });
-            expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-            expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+            expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+            expect(Medication.findByPk).toHaveBeenCalledWith(1);
         },
     );
 
     it(
-        'should return 403 if the reminder belongs to another user and the user didn\'t help them',
+        'should return 403 if the medication belongs to another user and the user didn\'t help ' +
+        'them',
         async () => {
             const getHelpedUsers = jest.fn();
             getHelpedUsers.mockResolvedValue([]);
@@ -941,32 +876,29 @@ describe('PATCH /reminder/:id', () => {
                 role: UserRole.HELPER,
                 getHelpedUsers,
             });
-            (Reminder.findByPk as jest.Mock).mockResolvedValue({
+            (Medication.findByPk as jest.Mock).mockResolvedValue({
                 id: 1,
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 2,
             });
-
             const response = await request(app)
-                .patch('/reminder/1')
+                .patch('/medication/1')
                 .set('Content-type', 'application/json')
                 .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
                 .set('x-remote-user-name', 'johndoe')
                 .set('x-remote-user-display-name', 'John Doe');
             expect(response.body).toStrictEqual({
-                message: 'You are not allowed to modify this reminder.',
+                message: 'You are not allowed to modify this medication.',
             });
             expect(response.status).toBe(403);
             expect(User.findOne).toHaveBeenCalledTimes(1);
             expect(User.findOne).toHaveBeenCalledWith({
                 where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             });
-            expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-            expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+            expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+            expect(Medication.findByPk).toHaveBeenCalledWith(1);
             expect(getHelpedUsers).toHaveBeenCalledTimes(1);
             expect(getHelpedUsers).toHaveBeenCalledWith({
                 where: { id: 2 },
@@ -981,17 +913,15 @@ describe('PATCH /reminder/:id', () => {
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -1003,74 +933,67 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
-    it('should return 400 if the time is invalid', async () => {
+    it('should return 400 if the name is invalid', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
-            .send({ time: 'bad time' });
-        expect(response.body).toStrictEqual({ message: 'Invalid time.' });
+            .send({ name: 0 });
+        expect(response.body).toStrictEqual({ message: 'Invalid name.' });
         expect(response.status).toBe(400);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
-    it('should modify the time', async () => {
+    it('should modify the name', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
         const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
             save,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
-            .send({ time: '14:00' });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
+            .send({ name: 'Syrup' });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '14:00',
-            frequency: 1,
+            name: 'Syrup',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         expect(response.status).toBe(200);
@@ -1078,118 +1001,69 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(save).toHaveBeenCalledTimes(1);
     });
 
-    it('should modify the time and update the nextDate', async () => {
+    it('should return 400 if the indication is invalid', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
-            save,
         });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
-            .send({ time: '08:00' });
-        expect(response.body).toStrictEqual({
-            id: 1,
-            time: '08:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-14',
-            medicationId: 1,
-            userId: 1,
-        });
-        expect(response.status).toBe(200);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-        expect(save).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return 400 if the frequency is invalid', async () => {
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPED,
-        });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
-            userId: 1,
-        });
-        const response = await request(app)
-            .patch('/reminder/1')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({ frequency: 'bad frequency' });
-        expect(response.body).toStrictEqual({ message: 'Invalid frequency.' });
+            .send({ indication: 0 });
+        expect(response.body).toStrictEqual({ message: 'Invalid indication.' });
         expect(response.status).toBe(400);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
-    it('should modify the frequency', async () => {
+    it('should modify the indication', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
         const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
             save,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
-            .send({ frequency: 2 });
+            .send({ indication: 'A new indication.' });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '12:00',
-            frequency: 2,
+            name: 'Paracetamol',
+            indication: 'A new indication.',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         expect(response.status).toBe(200);
@@ -1197,8 +1071,48 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should remove the indication', async () => {
+        (User.findOne as jest.Mock).mockResolvedValue({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+        });
+        const save = jest.fn();
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
+            id: 1,
+            name: 'Paracetamol',
+            indication: 'An indication.',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+            userId: 1,
+            save,
+        });
+        const response = await request(app)
+            .patch('/medication/1')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({ indication: null });
+        expect(response.body).toStrictEqual({
+            id: 1,
+            name: 'Paracetamol',
+            quantity: 1,
+            unit: MedicationUnit.PILL,
+            userId: 1,
+        });
+        expect(response.status).toBe(200);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(User.findOne).toHaveBeenCalledWith({
+            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
+        });
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(save).toHaveBeenCalledTimes(1);
     });
 
@@ -1208,17 +1122,15 @@ describe('PATCH /reminder/:id', () => {
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -1230,8 +1142,8 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
     it('should modify the quantity', async () => {
@@ -1241,18 +1153,16 @@ describe('PATCH /reminder/:id', () => {
             role: UserRole.HELPED,
         });
         const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
             save,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -1260,11 +1170,9 @@ describe('PATCH /reminder/:id', () => {
             .send({ quantity: 2 });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 2,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         expect(response.status).toBe(200);
@@ -1272,110 +1180,68 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(save).toHaveBeenCalledTimes(1);
     });
 
-    it('should return 400 if the nextDate is invalid', async () => {
+    it('should return 400 if the unit is invalid', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
         });
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
-            .send({ nextDate: 'bad nextDate' });
-        expect(response.body).toStrictEqual({ message: 'Invalid nextDate.' });
+            .send({ unit: 'bad unit' });
+        expect(response.body).toStrictEqual({ message: 'Invalid unit.' });
         expect(response.status).toBe(400);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
-    it('should return 400 if the nextDate is in the past', async () => {
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPED,
-        });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
-            id: 1,
-            time: '08:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-14',
-            medicationId: 1,
-            userId: 1,
-        });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
-        const response = await request(app)
-            .patch('/reminder/1')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({ nextDate: '2025-03-13' });
-
-        expect(response.body).toStrictEqual({ message: 'nextDate must be in the future.' });
-        expect(response.status).toBe(400);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-    });
-
-    it('should modify the nextDate', async () => {
+    it('should modify the unit', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
         const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-14',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
             save,
         });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
         const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
-            .send({ nextDate: '2025-03-13' });
-
+            .send({ unit: MedicationUnit.TABLET });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.TABLET,
             userId: 1,
         });
         expect(response.status).toBe(200);
@@ -1383,264 +1249,44 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(save).toHaveBeenCalledTimes(1);
     });
 
-    it('should return 400 if the medicationId is invalid', async () => {
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPED,
-        });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
-            userId: 1,
-        });
-        const response = await request(app)
-            .patch('/reminder/1')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({ medicationId: 'bad medicationId' });
-        expect(response.body).toStrictEqual({ message: 'Invalid medicationId.' });
-        expect(response.status).toBe(400);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-    });
-
-    it('should return 404 if the medicationId is not in the database', async () => {
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPED,
-        });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
-            userId: 1,
-        });
-        (Medication.findByPk as jest.Mock).mockResolvedValue(null);
-        const response = await request(app)
-            .patch('/reminder/1')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({ medicationId: 2 });
-        expect(response.body).toStrictEqual({ message: 'Medication not found.' });
-        expect(response.status).toBe(404);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
-        expect(Medication.findByPk).toHaveBeenCalledWith(
-            2,
-            { attributes: ['userId'] },
-        );
-    });
-
-    it(
-        'should return 400 if the medication belongs to another user than the reminder',
-        async () => {
-            (User.findOne as jest.Mock).mockResolvedValue({
-                id: 1,
-                homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-                role: UserRole.HELPED,
-            });
-            (Reminder.findByPk as jest.Mock).mockResolvedValue({
-                id: 1,
-                time: '12:00',
-                frequency: 1,
-                quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
-                userId: 1,
-            });
-            (Medication.findByPk as jest.Mock).mockResolvedValue({ userId: 2 });
-            const response = await request(app)
-                .patch('/reminder/1')
-                .set('Content-type', 'application/json')
-                .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-                .set('x-remote-user-name', 'johndoe')
-                .set('x-remote-user-display-name', 'John Doe')
-                .send({ medicationId: 2 });
-            expect(response.body).toStrictEqual({
-                message: 'This medication doesn\'t belong to the same user as the reminder.',
-            });
-            expect(response.status).toBe(400);
-            expect(User.findOne).toHaveBeenCalledTimes(1);
-            expect(User.findOne).toHaveBeenCalledWith({
-                where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-            });
-            expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-            expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-            expect(Medication.findByPk).toHaveBeenCalledTimes(1);
-            expect(Medication.findByPk).toHaveBeenCalledWith(
-                2,
-                { attributes: ['userId'] },
-            );
-        },
-    );
-
-    it('should modify the medicationId', async () => {
+    it('should modify all the medication\'s fields', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
         const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
             save,
         });
-        (Medication.findByPk as jest.Mock).mockResolvedValue({ userId: 1 });
         const response = await request(app)
-            .patch('/reminder/1')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({ medicationId: 2 });
-        expect(response.body).toStrictEqual({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 2,
-            userId: 1,
-        });
-        expect(response.status).toBe(200);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
-        expect(Medication.findByPk).toHaveBeenCalledWith(
-            2,
-            { attributes: ['userId'] },
-        );
-        expect(save).toHaveBeenCalledTimes(1);
-    });
-
-    it('should modify the medicationId for the reminder of an helped user', async () => {
-        const getHelpedUsers = jest.fn();
-        getHelpedUsers.mockResolvedValue([{ id: 2}]);
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPER,
-            getHelpedUsers,
-        });
-        const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
-            userId: 2,
-            save,
-        });
-        (Medication.findByPk as jest.Mock).mockResolvedValue({ userId: 2 });
-        const response = await request(app)
-            .patch('/reminder/1')
-            .set('Content-type', 'application/json')
-            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
-            .set('x-remote-user-name', 'johndoe')
-            .set('x-remote-user-display-name', 'John Doe')
-            .send({ medicationId: 2 });
-        expect(response.body).toStrictEqual({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 2,
-            userId: 2,
-        });
-        expect(response.status).toBe(200);
-        expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(User.findOne).toHaveBeenCalledWith({
-            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
-        });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
-        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
-        expect(Medication.findByPk).toHaveBeenCalledWith(
-            2,
-            { attributes: ['userId'] },
-        );
-        expect(save).toHaveBeenCalledTimes(1);
-    });
-
-    it('should modify all the reminder\'s fields', async () => {
-        (User.findOne as jest.Mock).mockResolvedValue({
-            id: 1,
-            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
-            role: UserRole.HELPED,
-        });
-        const save = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
-            id: 1,
-            time: '12:00',
-            frequency: 1,
-            quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
-            userId: 1,
-            save,
-        });
-        (Medication.findByPk as jest.Mock).mockResolvedValue({ userId: 1 });
-        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
-        const response = await request(app)
-            .patch('/reminder/1')
+            .patch('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe')
             .send({
-                time: '08:00',
-                frequency: 2,
+                name: 'Syrup',
+                indication: 'A new indication.',
                 quantity: 2,
-                nextDate: '2025-03-14',
-                medicationId: 2,
+                unit: MedicationUnit.ML,
             });
         expect(response.body).toStrictEqual({
             id: 1,
-            time: '08:00',
-            frequency: 2,
+            name: 'Syrup',
+            indication: 'A new indication.',
             quantity: 2,
-            nextDate: '2025-03-14',
-            medicationId: 2,
+            unit: MedicationUnit.ML,
             userId: 1,
         });
         expect(response.status).toBe(200);
@@ -1648,20 +1294,15 @@ describe('PATCH /reminder/:id', () => {
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
         expect(Medication.findByPk).toHaveBeenCalledTimes(1);
-        expect(Medication.findByPk).toHaveBeenCalledWith(
-            2,
-            { attributes: ['userId'] },
-        );
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(save).toHaveBeenCalledTimes(1);
     });
 });
 
-describe('DELETE /reminder/:id', () => {
+describe('DELETE /medication/:id', () => {
     it('should return 415 if the content-type header is not application/json', async () => {
-        const response = await request(app).delete('/reminder/1');
+        const response = await request(app).delete('/medication/1');
         expect(response.body).toStrictEqual({
             message: 'Unsupported content type. Only application/json is allowed.',
         });
@@ -1670,7 +1311,7 @@ describe('DELETE /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-id header is missing', async () => {
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
@@ -1682,7 +1323,7 @@ describe('DELETE /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'bad home assistant id')
             .set('x-remote-user-name', 'johndoe')
@@ -1695,7 +1336,7 @@ describe('DELETE /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-name header is missing', async () => {
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-display-name', 'John Doe');
@@ -1707,7 +1348,7 @@ describe('DELETE /reminder/:id', () => {
 
     it('should return 400 if the x-remote-user-display-name header is missing', async () => {
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe');
@@ -1721,7 +1362,7 @@ describe('DELETE /reminder/:id', () => {
         (User.findOne as jest.Mock).mockResolvedValue(null);
 
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -1742,7 +1383,7 @@ describe('DELETE /reminder/:id', () => {
         });
 
         const response = await request(app)
-            .delete('/reminder/invalid_id')
+            .delete('/medication/invalid_id')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
@@ -1755,69 +1396,69 @@ describe('DELETE /reminder/:id', () => {
         });
     });
 
-    it('should return 404 if the reminder is not found', async () => {
+    it('should return 404 if the medication is not found', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
-        (Reminder.findByPk as jest.Mock).mockResolvedValue(null);
+        (Medication.findByPk as jest.Mock).mockResolvedValue(null);
 
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
-        expect(response.body).toStrictEqual({ message: 'Reminder not found.' });
+        expect(response.body).toStrictEqual({ message: 'Medication not found.' });
         expect(response.status).toBe(404);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
     });
 
     it(
-        'should return 403 if the reminder belongs to another user and the user role is helped',
+        'should return 403 if the medication belongs to another user and the user role is helped',
         async () => {
             (User.findOne as jest.Mock).mockResolvedValue({
                 id: 1,
                 homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
                 role: UserRole.HELPED,
             });
-            (Reminder.findByPk as jest.Mock).mockResolvedValue({
+            (Medication.findByPk as jest.Mock).mockResolvedValue({
                 id: 1,
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
+                indication: 'The red pills.',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 2,
             });
 
             const response = await request(app)
-                .delete('/reminder/1')
+                .delete('/medication/1')
                 .set('Content-type', 'application/json')
                 .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
                 .set('x-remote-user-name', 'johndoe')
                 .set('x-remote-user-display-name', 'John Doe');
             expect(response.body).toStrictEqual({
-                message: 'You are not allowed to delete this reminder.',
+                message: 'You are not allowed to delete this medication.',
             });
             expect(response.status).toBe(403);
             expect(User.findOne).toHaveBeenCalledTimes(1);
             expect(User.findOne).toHaveBeenCalledWith({
                 where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             });
-            expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-            expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+            expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+            expect(Medication.findByPk).toHaveBeenCalledWith(1);
         },
     );
 
     it(
-        'should return 403 if the reminder belongs to another user and the user didn\'t help them',
+        'should return 403 if the medication belongs to another user and the user didn\'t help ' +
+        'them',
         async () => {
             const getHelpedUsers = jest.fn();
             getHelpedUsers.mockResolvedValue([]);
@@ -1827,32 +1468,30 @@ describe('DELETE /reminder/:id', () => {
                 role: UserRole.HELPER,
                 getHelpedUsers,
             });
-            (Reminder.findByPk as jest.Mock).mockResolvedValue({
+            (Medication.findByPk as jest.Mock).mockResolvedValue({
                 id: 1,
-                time: '12:00',
-                frequency: 1,
+                name: 'Paracetamol',
+                indication: 'The red pills.',
                 quantity: 1,
-                nextDate: '2025-03-13',
-                medicationId: 1,
+                unit: MedicationUnit.PILL,
                 userId: 2,
             });
-
             const response = await request(app)
-                .delete('/reminder/1')
+                .delete('/medication/1')
                 .set('Content-type', 'application/json')
                 .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
                 .set('x-remote-user-name', 'johndoe')
                 .set('x-remote-user-display-name', 'John Doe');
             expect(response.body).toStrictEqual({
-                message: 'You are not allowed to delete this reminder.',
+                message: 'You are not allowed to delete this medication.',
             });
             expect(response.status).toBe(403);
             expect(User.findOne).toHaveBeenCalledTimes(1);
             expect(User.findOne).toHaveBeenCalledWith({
                 where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
             });
-            expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-            expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+            expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+            expect(Medication.findByPk).toHaveBeenCalledWith(1);
             expect(getHelpedUsers).toHaveBeenCalledTimes(1);
             expect(getHelpedUsers).toHaveBeenCalledWith({
                 where: { id: 2 },
@@ -1861,7 +1500,7 @@ describe('DELETE /reminder/:id', () => {
         },
     );
 
-    it('should delete the reminder of the other user', async () => {
+    it('should delete the medication of the other user', async () => {
         const getHelpedUsers = jest.fn();
         getHelpedUsers.mockResolvedValue([{ id: 2 }]);
         (User.findOne as jest.Mock).mockResolvedValue({
@@ -1871,31 +1510,28 @@ describe('DELETE /reminder/:id', () => {
             getHelpedUsers,
         });
         const destroy = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
             userId: 2,
             destroy,
         });
 
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
-        expect(response.body).toStrictEqual({ message: 'Reminder removed successfully.' });
+        expect(response.body).toStrictEqual({ message: 'Medication removed successfully.' });
         expect(response.status).toBe(200);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(getHelpedUsers).toHaveBeenCalledTimes(1);
         expect(getHelpedUsers).toHaveBeenCalledWith({
             where: { id: 2 },
@@ -1904,38 +1540,36 @@ describe('DELETE /reminder/:id', () => {
         expect(destroy).toHaveBeenCalledTimes(1);
     });
 
-    it('should delete the reminder of the other user', async () => {
+    it('should delete the medication of the other user', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
         });
         const destroy = jest.fn();
-        (Reminder.findByPk as jest.Mock).mockResolvedValue({
+        (Medication.findByPk as jest.Mock).mockResolvedValue({
             id: 1,
-            time: '12:00',
-            frequency: 1,
+            name: 'Paracetamol',
             quantity: 1,
-            nextDate: '2025-03-13',
-            medicationId: 1,
+            unit: MedicationUnit.PILL,
             userId: 1,
             destroy,
         });
 
         const response = await request(app)
-            .delete('/reminder/1')
+            .delete('/medication/1')
             .set('Content-type', 'application/json')
             .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
             .set('x-remote-user-name', 'johndoe')
             .set('x-remote-user-display-name', 'John Doe');
-        expect(response.body).toStrictEqual({ message: 'Reminder removed successfully.' });
+        expect(response.body).toStrictEqual({ message: 'Medication removed successfully.' });
         expect(response.status).toBe(200);
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(User.findOne).toHaveBeenCalledWith({
             where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
         });
-        expect(Reminder.findByPk).toHaveBeenCalledTimes(1);
-        expect(Reminder.findByPk).toHaveBeenCalledWith(1);
+        expect(Medication.findByPk).toHaveBeenCalledTimes(1);
+        expect(Medication.findByPk).toHaveBeenCalledWith(1);
         expect(destroy).toHaveBeenCalledTimes(1);
     });
 });
