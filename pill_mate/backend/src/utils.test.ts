@@ -3,11 +3,14 @@ import { Request, Response } from 'express';
 import {
     asyncErrorHandler,
     checkUnexpectedKeys,
+    formatDate,
+    getNextDate,
     isDateValid,
     isHomeAssistantUserIdValid,
     isTimeValid,
 } from './utils';
 
+jest.useFakeTimers();
 
 describe('asyncErrorHandler function', () => {
     it('should catch the error and call the next function', async () => {
@@ -167,5 +170,24 @@ describe('isHomeAssistantUserIdValid function', () => {
         expect(isHomeAssistantUserIdValid(true)).toBe(false);
         expect(isHomeAssistantUserIdValid([])).toBe(false);
         expect(isHomeAssistantUserIdValid({})).toBe(false);
+    });
+});
+
+describe('getNextDate function', () => {
+    it('should return today’s date if the specified time is later in the day', () => {
+        jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
+        expect(getNextDate('12:00').getTime()).toBe(new Date('2025-03-13T10:00:00Z').getTime());
+    });
+
+    it('should return tomorrow’s date if the specified time has already passed today', () => {
+        jest.setSystemTime(new Date('2025-03-13T14:00:00Z'));
+        expect(getNextDate('12:00').getTime()).toBe(new Date('2025-03-14T14:00:00Z').getTime());
+    });
+});
+
+describe('formatYear function', () => {
+    it('should format the date to the format yyyy-mm-dd', () => {
+        expect(formatDate(new Date('2025-03-13'))).toBe('2025-03-13');
+        expect(formatDate(new Date('2030-12-01'))).toBe('2030-12-01');
     });
 });

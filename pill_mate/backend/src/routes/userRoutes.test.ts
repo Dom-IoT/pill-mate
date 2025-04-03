@@ -350,7 +350,7 @@ describe('GET /user/:id/reminders', () => {
         });
     });
 
-    it('should return 403 if the is as the role helped', async () => {
+    it('should return 403 if the user has the role helped', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',

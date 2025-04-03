@@ -49,3 +49,21 @@ export const isDateValid = (dateStr: unknown): dateStr is string => {
 export const isHomeAssistantUserIdValid = (id: unknown): id is string  => {
     return typeof id === 'string' && /^[0-9a-f]{32}$/.test(id);
 };
+
+export const getNextDate = (time: string): Date => {
+    const [hours, minutes] = time.split(':').map(Number);
+    const timeDate = new Date();
+    timeDate.setHours(hours, minutes, 0, 0);
+
+    const nextDate =  new Date();
+    if (nextDate > timeDate) nextDate.setDate(nextDate.getDate() + 1);
+
+    return nextDate;
+};
+
+export const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
