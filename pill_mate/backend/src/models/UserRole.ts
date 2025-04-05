@@ -7,7 +7,7 @@
  *       description: >
  *          The role of the user.
  *           * `0` - Helped, the user will be helped by the application.
- *           * `1` - Helper, the user will help an other user.
+ *           * `1` - Helper, the user will help another user.
  *       enum: [0, 1]
  *       example: 1
  */
