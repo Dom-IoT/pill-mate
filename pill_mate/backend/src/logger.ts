@@ -4,7 +4,7 @@ const NODE_ENV = process.env.NODE_ENV || 'production';
 
 const log_levels: { [key: string]: string } = {
     production: 'info',
-    developement: 'debug',
+    development: 'debug',
     test: 'off',
 };
 
