@@ -8,14 +8,14 @@ interface Props {
 };
 
 const RegisteredObject: FC<Props> = ({rappel, color, date }) => {
-    let buttonText = "Modifier";
+    let buttonText = 'Modifier';
 
-    if (color === "blue") {
-        buttonText = "Modifier"
-    }else if (color === "green") {
-        buttonText = "Ajouter stock"
+    if (color === 'blue') {
+        buttonText = 'Modifier';
+    } else if (color === 'green') {
+        buttonText = 'Ajouter stock';
     }
-    
+
     return (
         <div className={`RegisteredObject ${color}`}>
             <div>

@@ -17,12 +17,12 @@ const Calendar: FC = () => {
             <h1 className="Title">Liste de vos rappels</h1>
             <div className="reminderList">
                 <div onClick={() => setShow(true)}>
-                    <AddButton 
-                        title="Ajouter un rappel" 
+                    <AddButton
+                        title="Ajouter un rappel"
                         color="blue"
                     />
                 </div>
-                {show && <PopUp onClose={() => setShow(false)}/>}
+                {show && <PopUp onClose={() => setShow(false)} mode="Ajouter" reminder={null} />}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {reminders.length > 0 ? (
                         reminders.map((reminder) => (

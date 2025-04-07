@@ -1,4 +1,3 @@
-
 import { FC, FormEvent, useState } from 'react';
 import './PopUp.css';
 import { CircleX, Trash2 } from 'lucide-react';
