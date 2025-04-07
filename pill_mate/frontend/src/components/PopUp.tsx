@@ -31,7 +31,6 @@ const PopUp: FC<Props> = ({ onClose, mode, reminder }) => {
                 addReminder(name, heurePrise, frequence);
                 onClose();
             }
-
         }
     };
 

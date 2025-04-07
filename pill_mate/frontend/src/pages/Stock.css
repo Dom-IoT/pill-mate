@@ -1,9 +1,9 @@
-.Calendar {
+.Stock {
     display: flex;
     flex-direction: column;
     gap: 10px;
     position: relative;
-    background-color: var(--blue);
+    background-color: var(--green);
     height: 100vh;
     align-items: center;
     padding: 15px;
@@ -15,12 +15,13 @@
     text-align: center;
 }
 
-.reminderList {
+.StockList {
     display: flex;
     flex-direction: column;
     align-items: center;
     flex-grow: 1;
     gap: 10px;
+
 }
 
 .Link {
@@ -28,6 +29,4 @@
     padding: 5px;
     color: white;
     bottom: 10px;
-    background-color: var(--light_blue);
-    border: 1px solid black;
 }

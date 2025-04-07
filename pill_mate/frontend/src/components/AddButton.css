@@ -1,0 +1,35 @@
+.AddButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 2rem;
+    font-weight: bold;
+    border: 3px solid black;
+    width: fit-content;
+    padding: 5px 7.5px;
+    color: black;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.Icon {
+    width: 1em; /* Ajuste la taille pour s'adapter au texte */
+    height: 1em;
+}
+
+.AddButton.blue {
+    background-color: var(--light_blue);
+}
+
+.AddButton.green {
+    background-color: var(--light_green);
+}
+
+.AddButton.red {
+    background-color: var(--light_red);
+}
+
+.AddButton.orange {
+    background-color: var(--light_orange);
+}
+  
