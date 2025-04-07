@@ -5,6 +5,7 @@ export interface Reminder {
     name: string;
     heurePrise: Date;
     frequence: number;
+    date: Date;
 }
 
 interface ReminderContextType {
@@ -26,11 +27,13 @@ export const ReminderProvider = ({ children }: { children: ReactNode }) => {
 
     const addReminder = (name: string, heurePrise: Date, frequence: number) => {
 
-        setReminders(prev => [ ...prev.filter(reminder => !(
-            reminder.name === name && reminder.heurePrise.getTime() === heurePrise.getTime()
-        )),
-        {id: Date.now(), name: name, heurePrise: heurePrise, frequence: frequence },
-        ]);
+        setReminders(prev => [{
+            id: Date.now(),
+            name: name,
+            heurePrise: heurePrise,
+            frequence: frequence,
+            date: new Date(),
+        }, ...prev]);
     };
 
     const modifyReminder = (

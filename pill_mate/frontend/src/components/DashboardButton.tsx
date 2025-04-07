@@ -5,7 +5,7 @@ import './DashboardButton.css';
 interface Props {
     label: string,
     path: string,
-    color:'blue'| 'green'| 'red'|'orange',
+    color: 'blue' | 'green' | 'red' |'orange',
     icon: JSX.Element,
 };
 
