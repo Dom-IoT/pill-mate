@@ -10,7 +10,6 @@ const AppRoutes: React.FC = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/stock" element={<Stock />} />
-            /* <Route path="/stock" element={<Stock />} /> */
             <Route path="*" element={<Navigate to="/" />} />
         </Routes>
     );
