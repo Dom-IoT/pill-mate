@@ -27,7 +27,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setUser(newUser);
     };
 
-    if (user === undefined) {
+    if (user === null) {
         return <div>Loading...</div>;
     }
 
