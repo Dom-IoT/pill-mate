@@ -18,6 +18,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -43,6 +45,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -68,6 +72,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -93,6 +99,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -107,10 +115,8 @@ describe('applicationJson middleware', () => {
         'should call the next function for a GET request',
         () => {
             const request = {
-                get: jest.fn(),
                 method: 'GET',
             };
-            request.get.mockReturnValue('bad content type');
             const response = {
                 status: jest.fn(),
                 json: jest.fn(),
@@ -139,6 +145,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -164,6 +172,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -189,6 +199,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
@@ -214,6 +226,8 @@ describe('applicationJson middleware', () => {
             response.status.mockReturnValue(response);
             const next = jest.fn();
             applicationJson(request as unknown as Request, response as unknown as Response,  next);
+            expect(request.get).toHaveBeenCalledTimes(1);
+            expect(request.get).toHaveBeenCalledWith('content-type');
             expect(response.status).toHaveBeenCalledTimes(1);
             expect(response.status).toHaveBeenCalledWith(415);
             expect(response.json).toHaveBeenCalledTimes(1);
