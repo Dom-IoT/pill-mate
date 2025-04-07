@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { homeAssistantHeaders } from './homeAssistantHeaders';
 
 describe('homeAssistantHeaders middleware', () => {
-    it('should return 400 if the x-remote-user-id header is missing', async () => {
+    it('should return 400 if the x-remote-user-id header is missing', () => {
         const request = {
             get: jest.fn(),
         };
@@ -26,7 +26,7 @@ describe('homeAssistantHeaders middleware', () => {
         expect(next).toHaveBeenCalledTimes(0);
     });
 
-    it('should return 400 if the x-remote-user-id is not a valid user id', async () => {
+    it('should return 400 if the x-remote-user-id is not a valid user id', () => {
         const request = {
             get: jest.fn(),
         };
@@ -49,7 +49,7 @@ describe('homeAssistantHeaders middleware', () => {
         expect(next).toHaveBeenCalledTimes(0);
     });
 
-    it('should return 400 if the x-remote-user-name header is missing', async () => {
+    it('should return 400 if the x-remote-user-name header is missing', () => {
         const request = {
             get: jest.fn(),
         };
@@ -76,7 +76,7 @@ describe('homeAssistantHeaders middleware', () => {
         expect(next).toHaveBeenCalledTimes(0);
     });
 
-    it('should return 400 if the x-remote-user-display-name header is missing', async () => {
+    it('should return 400 if the x-remote-user-display-name header is missing', () => {
         const request = {
             get: jest.fn(),
         };
@@ -102,5 +102,20 @@ describe('homeAssistantHeaders middleware', () => {
             message: 'Missing required header: x-remote-user-display-name.',
         });
         expect(next).toHaveBeenCalledTimes(0);
+    });
+
+    it('should call the next function', () => {
+        const request = {
+            get: jest.fn(),
+        };
+        request.get.mockImplementation((header) => {
+            if (header === 'x-remote-user-id') return 'c355d2aaeee44e4e84ff8394fa4794a9';
+            if (header === 'x-remote-user-name') return 'johndoe';
+            if (header === 'x-remote-user-display-name') return 'John Doe';
+            fail(`unknown header: ${header}`);
+        });
+        const next = jest.fn();
+        homeAssistantHeaders(request as unknown as Request, {} as Response, next);
+        expect(next).toHaveBeenCalledTimes(1);
     });
 });
