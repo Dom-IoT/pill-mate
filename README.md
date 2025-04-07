@@ -16,7 +16,9 @@ cd pill-mate
 cp pill_mate/.env.dist pill_mate/.env
 ```
 
-Edit the `.env` file and set `DEV` at 1.
+Edit the `.env` file:
+ - set `DEV` at 1
+ - set `NODE_ENV` at development
 
 ```sh
 make addon-setup
@@ -36,3 +38,16 @@ backend using:
 ```sh
 make add-update
 ```
+
+## Documentation
+
+### Backend
+
+The backend API is documented with swagger. To open the documentation you can
+run :
+
+```sh
+make swagger
+```
+
+This will open the swagger interface in your browser.

@@ -1,7 +1,7 @@
 import winston from 'winston';
 
 export const createLogger = (label: string) => winston.createLogger({
-    level: process.env.DEV ? 'debug' : 'info',
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     format: winston.format.combine(
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         winston.format.label({ label, message: true }),

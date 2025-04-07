@@ -1,7 +1,7 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
+import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
 
 export default tseslint.config(
     { ignores: ['build'] },
@@ -11,7 +11,7 @@ export default tseslint.config(
             ...tseslint.configs.recommended,
             importPlugin.flatConfigs.recommended,
         ],
-        files: ['**/*.{ts,tsx}'],
+        files: ['**/*.{js,cjs,mjs,ts,tsx}'],
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.node,
@@ -26,6 +26,8 @@ export default tseslint.config(
             'eqeqeq': ['error', 'always'],
             'import/order': 'error',
             'import/no-unresolved': 'off',
+            '@typescript-eslint/no-require-imports': 'off',
+            '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
         },
     },
-)
+);

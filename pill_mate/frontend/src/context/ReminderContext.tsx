@@ -1,14 +1,21 @@
 import { createContext, useState, ReactNode } from 'react';
 
-interface Reminder {
+export interface Reminder {
     id: number;
     name: string;
-    date: Date;
+    heurePrise: Date;
+    frequence: number;
 }
 
 interface ReminderContextType {
     reminders: Reminder[];
-    addReminder: (name: string, date: Date) => void;
+    addReminder: (name: string, heurePrise: Date, frequence: number) => void;
+    modifyReminder: (
+        reminder: Reminder,
+        newName: string,
+        newHeurePrise: Date,
+        newFrequence: number) => void;
+    delReminder: (id: number) => void;
 }
 
 
@@ -17,12 +24,36 @@ const ReminderContext = createContext<ReminderContextType | undefined>(undefined
 export const ReminderProvider = ({ children }: { children: ReactNode }) => {
     const [reminders, setReminders] = useState<Reminder[]>([]);
 
-    const addReminder = (name: string, date: Date) => {
-        setReminders(prev => [...prev, { id: Date.now(), name, date }]);
+    const addReminder = (name: string, heurePrise: Date, frequence: number) => {
+
+        setReminders(prev => [ ...prev.filter(reminder => !(
+            reminder.name === name && reminder.heurePrise.getTime() === heurePrise.getTime()
+        )),
+        {id: Date.now(), name: name, heurePrise: heurePrise, frequence: frequence },
+        ]);
+    };
+
+    const modifyReminder = (
+        { id }: Reminder,
+        newName: string,
+        newHeurePrise: Date,
+        newFrequence: number) => {
+        setReminders(prev => prev.map(prevReminder =>
+            prevReminder.id === id
+                ? {...prevReminder,
+                    name: newName,
+                    heurePrise: newHeurePrise,
+                    frequence: newFrequence}
+                : prevReminder,
+        ));
+    };
+
+    const delReminder = (id: number) => {
+        setReminders(prev => prev.filter(reminder => reminder.id !== id));
     };
 
     return (
-        <ReminderContext.Provider value={{ reminders, addReminder }}>
+        <ReminderContext.Provider value={{ reminders, addReminder, modifyReminder, delReminder }}>
             {children}
         </ReminderContext.Provider>
     );

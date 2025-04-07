@@ -1,11 +1,19 @@
 import { WebSocket } from 'ws';
 
 import { createLogger } from '../logger';
-import { Message, ResultSuccessMessage } from './message';
+import {
+    EntitySourceResult,
+    GetServicesResult,
+    GetStatesResult,
+    PersonListResult,
+    ResultSuccessMessage,
+    ServerMessage,
+} from './server_message';
+import { ClientMessage, CommandMessageWithoutId } from './client_message';
 
 const logger = createLogger('websocket');
 
-export default class HomeAssistant {
+class HomeAssistant {
 
     private readonly webSocket: WebSocket;
     private readonly accessToken: string;
@@ -36,7 +44,7 @@ export default class HomeAssistant {
                 return;
             };
 
-            const message = JSON.parse(data.toString('utf-8')) as Message;
+            const message = JSON.parse(data.toString('utf-8')) as ServerMessage;
             logger.debug(`Received message: ${data}`);
 
             if (message.type === 'auth_required') {
@@ -73,17 +81,72 @@ export default class HomeAssistant {
         });
     }
 
-    private send(data: object) {
+    private send(data: ClientMessage) {
         const message = JSON.stringify(data);
         logger.debug(`Send message: ${message}`);
         this.webSocket.send(message);
     }
 
-    private send_with_id(data: object): Promise<ResultSuccessMessage> {
-        this.send({ id: this.nextId, ...data });
+    sendWithId(data: CommandMessageWithoutId): Promise<ResultSuccessMessage> {
         return new Promise((resolve, reject) => {
             this.pendingRequests[this.nextId] = { resolve, reject };
+            this.send({ id: this.nextId, ...data });
             ++this.nextId;
         });
     }
+
+    async entitySource(): Promise<EntitySourceResult> {
+        return (await this.sendWithId({ type: 'entity/source' })).result as EntitySourceResult;
+    }
+
+    async getStates(): Promise<GetStatesResult> {
+        return (await this.sendWithId({ type: 'get_states' })).result as GetStatesResult;
+    }
+
+    async getServices(): Promise<GetServicesResult> {
+        return (await this.sendWithId({ type: 'get_services' })).result as GetServicesResult;
+    }
+
+    async getEntitiesByDomain(domain: string): Promise<string[]> {
+        const entities = await this.entitySource();
+        return Object.keys(entities).filter(entity => entities[entity].domain === domain);
+    }
+
+    getSpeakers(): Promise<string[]> {
+        return this.getEntitiesByDomain('media_player');
+    }
+
+    async callServices(domain: string, service: string, serviceData?: object) {
+        await this.sendWithId({
+            type: 'call_service',
+            domain,
+            service,
+            service_data: serviceData,
+        });
+    }
+
+    getTTSEntity(): Promise<string[]> {
+        return this.getEntitiesByDomain('tts');
+    }
+
+    async ttsSpeak(message: string, speaker: string, ttsEntity: string, language: string) {
+        this.callServices('tts', 'speak', {
+            media_player_entity_id: speaker,
+            entity_id: ttsEntity,
+            message,
+            language,
+        });
+    }
+
+    async getUsers() {
+        const result = (await this.sendWithId({ type: 'person/list' })).result as PersonListResult;
+        return result.storage;
+    }
 }
+
+if (process.env.SUPERVISOR_TOKEN === undefined) {
+    logger.error('SUPERVISOR_TOKEN is not set');
+    process.exit(1);
+}
+const homeassistant = new HomeAssistant(process.env.SUPERVISOR_TOKEN);
+export default homeassistant;

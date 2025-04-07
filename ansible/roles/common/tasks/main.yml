@@ -7,7 +7,7 @@
 - name: Copy addon files
   ansible.posix.synchronize:
     src: ../{{ addon_name }}
-    dest: /usr/share/hassio/addons/local
+    dest: "{{ addons_dir }}"
     delete: true
     recursive: true
   tags: [setup, update, reinstall]
@@ -25,7 +25,7 @@
 
 - name: Remove addon files
   ansible.builtin.file:
-    path: /usr/share/hassio/addons/local/{{ addon_name }}
+    path: "{{ addons_dir }}/{{ addon_name }}"
     state: absent
   tags: clean
 

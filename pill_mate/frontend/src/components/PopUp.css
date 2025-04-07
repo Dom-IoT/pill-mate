@@ -23,12 +23,35 @@
     padding: 15px;
 }
 
-.CrossIcon {
+.crossIcon {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 3px;
+    right: 3px;
     cursor: pointer;
     color: black;
+    background-color: #00000000;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    align-self: left;
+    margin: 5px;
+}
+
+.description {
+    font-size: 0.75rem;
+    margin-top: 4px;
+}
+
+.deleteButton {
+    background-color: rgb(255, 105, 97);
+    border: 1px solid black;
+    cursor: pointer;
+    justify-content: center;
+    text-align: center;
 }
 
 .Settings {

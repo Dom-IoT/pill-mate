@@ -29,4 +29,6 @@
     padding: 5px;
     color: white;
     bottom: 10px;
+    background-color: var(--light_blue);
+    border: 1px solid black;
 }

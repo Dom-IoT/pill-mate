@@ -1,25 +1,33 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import morgan from 'morgan';
 
 import { createLogger } from './logger';
-import HomeAssistant from './homeassistant';
-
-const HOME_ASSISTANT_SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN || '';
-
-const homeassistant = new HomeAssistant(HOME_ASSISTANT_SUPERVISOR_TOKEN);
+import medicationRoutes from './routes/medicationRoutes';
+import reminderRoutes from './routes/reminderRoutes';
+import userRoutes from './routes/userRoutes';
+import { homeAssistantHeaders } from './middlewares/homeAssistantHeaders';
+import { errorHandling } from './middlewares/errorHandling';
+import { applicationJson } from './middlewares/applicationJson';
 
 const app = express();
 
-const logger = createLogger('express');
+const expressLogger = createLogger('express');
 
 app.use(morgan('dev', {
     stream: {
-        write: message => logger.http(message.trim()),
+        write: message => expressLogger.http(message.trim()),
     },
 }));
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello, World!');
-});
+app.use(applicationJson);
+app.use(express.json());
+
+app.use(homeAssistantHeaders);
+
+app.use('/medication', medicationRoutes);
+app.use('/reminder', reminderRoutes);
+app.use('/user', userRoutes);
+
+app.use(errorHandling);
 
 export default app;
