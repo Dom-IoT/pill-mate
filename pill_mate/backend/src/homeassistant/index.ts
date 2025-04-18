@@ -1,3 +1,5 @@
+import { setTimeout as setTimeoutPromise } from 'node:timers/promises';
+
 import { WebSocket } from 'ws';
 
 import { createLogger } from '../logger';
@@ -11,31 +13,44 @@ import {
 } from './server_message';
 import { ClientMessage, CommandMessageWithoutId } from './client_message';
 
+const WEBSOCKET_URL: string = 'ws://supervisor/core/websocket';
+const MAX_RETRY: number = 10;
+const RETRY_DELAY: number = 5_000;  // 5 s
+
 const logger = createLogger('websocket');
 
-class HomeAssistant {
+export class HomeAssistant {
 
     private readonly webSocket: WebSocket;
-    private readonly accessToken: string;
+    private connected: boolean = false;
     private nextId: number = 1;
     private pendingRequests: { [key: number]: {
         resolve(result: object): void,
         reject(error: Error): void,
     } } = {};
 
-    constructor(accessToken: string) {
-        this.accessToken = accessToken;
-
-        this.webSocket = new WebSocket('ws://supervisor/core/websocket');
+    private constructor(
+        accessToken: string,
+        resolve: (value: HomeAssistant) => void,
+        reject: () => void,
+    ) {
+        this.webSocket = new WebSocket(WEBSOCKET_URL);
 
         this.webSocket.on('open', () => {
             logger.info('Connected to Home Assistant WebSocket server');
+            this.connected = true;
         });
 
-        this.webSocket.on('error', logger.error);
+        this.webSocket.on('error', logger.error.bind(logger));
 
         this.webSocket.on('close', (code, reason) => {
             logger.error(`Connection closed: ${code} ${reason}`);
+            if (!this.connected)  {
+                reject();
+            } else {
+                logger.error('Exiting');
+                process.exit(1);
+            }
         });
 
         this.webSocket.on('message', (data, isBinary) => {
@@ -50,18 +65,20 @@ class HomeAssistant {
             if (message.type === 'auth_required') {
                 this.send({
                     type: 'auth',
-                    access_token: this.accessToken,
+                    access_token: accessToken,
                 });
                 return;
             }
 
             if (message.type === 'auth_ok') {
                 logger.info('Authentication succeeded');
+                resolve(this);
                 return;
             }
 
             if (message.type === 'auth_invalid') {
                 logger.error(`Authentication failed: ${message.message}`);
+                logger.error('Exiting');
                 process.exit(1);
             }
 
@@ -79,6 +96,30 @@ class HomeAssistant {
 
             logger.error(`Unknown message type: ${(message as { type: string }).type}`);
         });
+    }
+
+    private static async tryConnect(accessToken: string, tryCount: number): Promise<HomeAssistant> {
+        logger.info('Trying to Home Assistant WebSocket server');
+        try {
+            return await new Promise((resolve, reject) => {
+                new HomeAssistant(accessToken, resolve, reject);
+            });
+        } catch {
+            logger.error('Failed to connect to Home Assistant WebSocket server');
+            if (tryCount < MAX_RETRY) {
+                logger.info(`Retrying in ${(RETRY_DELAY / 1000).toFixed(1)} seconds`);
+                await setTimeoutPromise(RETRY_DELAY);
+                return await HomeAssistant.tryConnect(accessToken, tryCount + 1);
+            }
+
+            logger.error('Maximum number of tries reached');
+            logger.error('Exiting');
+            process.exit(1);
+        }
+    }
+
+    static create(accessToken: string): Promise<HomeAssistant> {
+        return HomeAssistant.tryConnect(accessToken, 0);
     }
 
     private send(data: ClientMessage) {
@@ -143,10 +184,3 @@ class HomeAssistant {
         return result.storage;
     }
 }
-
-if (process.env.SUPERVISOR_TOKEN === undefined) {
-    logger.error('SUPERVISOR_TOKEN is not set');
-    process.exit(1);
-}
-const homeassistant = new HomeAssistant(process.env.SUPERVISOR_TOKEN);
-export default homeassistant;
