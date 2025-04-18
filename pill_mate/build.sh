@@ -6,7 +6,7 @@ source .env
 
 build_backend() {
     pushd backend
-    npm install --production
+    npm ci --omit=dev
     npm run build
     popd
 }

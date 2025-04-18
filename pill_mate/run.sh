@@ -44,4 +44,4 @@ cat /etc/nginx/http.d/ingress.conf
 
 bashio::log.info "Starting nginx server..."
 
-exec nginx -g "daemon off;error_log /dev/stdout debug;" & cd backend && npm run start
+exec nginx -g "daemon off;" & cd backend && npm run start
