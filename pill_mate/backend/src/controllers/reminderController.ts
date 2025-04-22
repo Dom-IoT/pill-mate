@@ -309,10 +309,7 @@ export const patchReminder = asyncErrorHandler(async (request: Request, response
         }
 
         reminder.time = time;
-        const [hours, minutes] = time.split(':').map(Number);
-        const nextDate = new Date(reminder.nextDate);
-        nextDate.setHours(hours, minutes, 0, 0);
-        if (nextDate.getTime() < Date.now()) {
+        if (reminder.nextDateTime.getTime() < Date.now()) {
             reminder.nextDate = formatDate(getNextDate(time));
         }
     }
