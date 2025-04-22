@@ -5,10 +5,9 @@ import { errorHandling } from './errorHandling';
 describe('errorHandling middleware', () => {
     it('should return 400 if the error is a JSON parsing syntax error', () => {
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         const error = new SyntaxError() as unknown as { status: number, body: string };
         error.status = 400;
@@ -25,10 +24,9 @@ describe('errorHandling middleware', () => {
 
     it('should return 500', () => {
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         errorHandling(new Error(), {} as Request, response as unknown as Response, next);
         expect(response.status).toHaveBeenCalledTimes(1);
