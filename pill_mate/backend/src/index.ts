@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 config({ path: '../.env' });
 
 import app from './app';
-import { HomeAssistant } from './homeassistant';
+import { HomeAssistantService } from './services/homeAssistantService';
 import { createLogger } from './logger';
 import { ReminderService } from './services/reminderService';
 import { sequelize } from './sequelize';
@@ -21,7 +21,7 @@ const logger = createLogger('backend');
 
     await Promise.all([
         sequelize.sync({ alter: { drop: false } }).then(() => ReminderService.initAllTimeouts()),
-        HomeAssistant.create(SUPERVISOR_TOKEN),
+        HomeAssistantService.init(SUPERVISOR_TOKEN),
     ]);
 
     app.listen(PORT, () => {
