@@ -32,10 +32,9 @@ type TestBody = {
 describe('checkUnexpectedKeys function', () => {
     it('should return true', () => {
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         expect(checkUnexpectedKeys<TestBody>(
             { key1: 0, key2: 0 } as TestBody,
             ['key1', 'key2'],
@@ -47,10 +46,9 @@ describe('checkUnexpectedKeys function', () => {
 
     it('should return true if the keys are not present', () => {
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         expect(checkUnexpectedKeys<TestBody>(
             {} as TestBody,
             ['key1', 'key2'],
@@ -62,10 +60,9 @@ describe('checkUnexpectedKeys function', () => {
 
     it('should return false if there is an unexpected key', () => {
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         expect(checkUnexpectedKeys<TestBody>(
             { badKey: 0 },
             ['key1', 'key2'],
@@ -79,10 +76,9 @@ describe('checkUnexpectedKeys function', () => {
 
     it('should return false if there is an multiple unexpecteds keys', () => {
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         expect(checkUnexpectedKeys<TestBody>(
             { badKey1: 0, badKey2: 0 },
             ['key1', 'key2'],

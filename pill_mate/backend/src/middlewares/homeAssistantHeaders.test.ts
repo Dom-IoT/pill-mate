@@ -9,10 +9,9 @@ describe('homeAssistantHeaders middleware', () => {
         };
         request.get.mockReturnValue(undefined);
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         homeAssistantHeaders(request as unknown as Request, response as unknown as Response, next);
         expect(request.get).toHaveBeenCalledTimes(1);
@@ -32,10 +31,9 @@ describe('homeAssistantHeaders middleware', () => {
         };
         request.get.mockReturnValue('bad home assistant id');
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         homeAssistantHeaders(request as unknown as Request, response as unknown as Response, next);
         expect(request.get).toHaveBeenCalledTimes(1);
@@ -59,10 +57,9 @@ describe('homeAssistantHeaders middleware', () => {
             fail(`unknown header: ${header}`);
         });
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         homeAssistantHeaders(request as unknown as Request, response as unknown as Response, next);
         expect(request.get).toHaveBeenCalledTimes(2);
@@ -87,10 +84,9 @@ describe('homeAssistantHeaders middleware', () => {
             fail(`unknown header: ${header}`);
         });
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         homeAssistantHeaders(request as unknown as Request, response as unknown as Response, next);
         expect(request.get).toHaveBeenCalledTimes(3);

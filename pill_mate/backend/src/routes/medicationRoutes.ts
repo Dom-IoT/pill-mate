@@ -35,6 +35,12 @@ router.get('/', requireUser, medicationController.getMedications);
  *   post:
  *     summary: Create a new medication.
  *     tags: [Medications]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateMedication'
  *     responses:
  *       201:
  *         description: Medication created successfully.

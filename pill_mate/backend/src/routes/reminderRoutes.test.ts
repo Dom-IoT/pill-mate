@@ -1054,6 +1054,7 @@ describe('PATCH /reminder/:id', () => {
             nextDate: '2025-03-13',
             medicationId: 1,
             userId: 1,
+            nextDateTime: new Date('2025-03-13T14:00:00Z'),
             save,
         });
         const response = await request(app)
@@ -1098,6 +1099,7 @@ describe('PATCH /reminder/:id', () => {
             nextDate: '2025-03-13',
             medicationId: 1,
             userId: 1,
+            nextDateTime: new Date('2025-03-13T08:00:00Z'),
             save,
         });
         jest.setSystemTime(new Date('2025-03-13T10:00:00Z'));
@@ -1617,6 +1619,7 @@ describe('PATCH /reminder/:id', () => {
             nextDate: '2025-03-13',
             medicationId: 1,
             userId: 1,
+            nextDateTime: new Date('2025-03-13T14:00:00Z'),
             save,
         });
         (Medication.findByPk as jest.Mock).mockResolvedValue({ userId: 1 });

@@ -97,16 +97,16 @@ export class User extends Model {
     @HasMany(() => Reminder)
     declare reminders: Reminder[];
 
-    declare getReminders: BelongsToManyGetAssociationsMixin<Reminder>;
-    declare setReminders: BelongsToManySetAssociationsMixin<Reminder, number>;
-    declare addReminder: BelongsToManyAddAssociationMixin<Reminder, number>;
-    declare addReminders: BelongsToManyAddAssociationsMixin<Reminder, number>;
-    declare removeReminder: BelongsToManyRemoveAssociationMixin<Reminder, number>;
-    declare removeReminders: BelongsToManyRemoveAssociationsMixin<Reminder, number>;
-    declare hasReminder: BelongsToManyHasAssociationMixin<Reminder, number>;
-    declare hasReminders: BelongsToManyHasAssociationsMixin<Reminder, number>;
-    declare countReminders: BelongsToManyCountAssociationsMixin;
-    declare createReminder: BelongsToManyCreateAssociationMixin<Reminder>;
+    declare getReminders: HasManyGetAssociationsMixin<Reminder>;
+    declare setReminders: HasManySetAssociationsMixin<Reminder, number>;
+    declare addReminder: HasManyAddAssociationMixin<Reminder, number>;
+    declare addReminders: HasManyAddAssociationsMixin<Reminder, number>;
+    declare removeReminder: HasManyRemoveAssociationMixin<Reminder, number>;
+    declare removeReminders: HasManyRemoveAssociationsMixin<Reminder, number>;
+    declare hasReminder: HasManyHasAssociationMixin<Reminder, number>;
+    declare hasReminders: HasManyHasAssociationsMixin<Reminder, number>;
+    declare countReminders: HasManyCountAssociationsMixin;
+    declare createReminder: HasManyCreateAssociationMixin<Reminder>;
 
     @HasMany(() => Medication)
     declare medications: Medication[];

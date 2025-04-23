@@ -62,10 +62,7 @@ export class Reminder extends Model {
 
     @AllowNull(false)
     @Min(0.01)
-    @Column({
-        type: DataType.DECIMAL(6, 2),
-        allowNull: false,
-    })
+    @Column(DataType.DECIMAL(6, 2))
     declare quantity: number;
 
     @AllowNull(false)
@@ -87,4 +84,16 @@ export class Reminder extends Model {
 
     @BelongsTo(() => User)
     declare user: User;
+
+    /**
+     * Computes the exact `Date` object when the reminder should trigger.
+     *
+     * @returns A `Date` instance representing the next scheduled trigger of the reminder.
+     */
+    public get nextDateTime(): Date {
+        const [hours, minutes] = this.time.split(':').map(Number);
+        const nextDate = new Date(this.nextDate);
+        nextDate.setHours(hours, minutes, 0, 0);
+        return nextDate;
+    }
 }

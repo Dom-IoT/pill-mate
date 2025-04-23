@@ -21,10 +21,9 @@ describe('requireUser middleware', () => {
         (User.findOne as jest.Mock).mockResolvedValue(null);
         const request = { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' };
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         await requireUser(request as unknown as Request, response as unknown as Response, next);
         expect(User.findOne).toHaveBeenCalledTimes(1);
@@ -51,10 +50,9 @@ describe('requireUser middleware', () => {
             user: undefined,
         };
         const response = {
-            status: jest.fn(),
+            status: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
-        response.status.mockReturnValue(response);
         const next = jest.fn();
         await requireUser(request as unknown as Request, response as unknown as Response, next);
         expect(User.findOne).toHaveBeenCalledTimes(1);
