@@ -1,0 +1,35 @@
+
+.PopUp {
+    position: relative;
+    background-color: var(--red);
+    display: flex;
+    width: 20%;
+    flex-direction: column;
+    border: 3px solid black;
+    align-items: center;
+    padding: 15px;
+    text-align: center;
+    font-size: 19pt;
+    font-style: bold;
+}
+
+.title {
+    align-self: left;
+    margin: 5px;
+}
+
+.submit{
+    background-color: #666;
+    margin-top:15px;
+    cursor: pointer;
+    text-align: center;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+.title{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 22px;
+}

@@ -40,27 +40,27 @@ const Dashboard: FC = () => {
             <div className="container">
                 <DashboardButton
                     label="Calendrier"
-                    icon=<Calendar size={iconSize} />
+                    icon={<Calendar size={iconSize} />}
                     color="blue"
                     path="/calendar"
                 />
                 <DashboardButton
                     label="Gestion des stocks"
-                    icon=<ClipboardList size={iconSize} />
+                    icon={<ClipboardList size={iconSize} />}
                     color="green"
-                    path="/"
+                    path="/stocks"
                 />
                 <DashboardButton
                     label="Ordonnance"
-                    icon=<Scan size={iconSize} />
+                    icon={<Scan size={iconSize} />}
                     color="red"
-                    path="/"
+                    path="/prescription"
                 />
                 <DashboardButton
                     label="Paramètres"
-                    icon=<Settings size={iconSize} />
+                    icon={<Settings size={iconSize} />}
                     color="orange"
-                    path="/"
+                    path="/settings"
                 />
             </div>
         </div>

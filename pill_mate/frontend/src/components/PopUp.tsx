@@ -1,3 +1,4 @@
+// PopUp.tsx
 import { FC, FormEvent, useState } from 'react';
 import './PopUp.css';
 import { CircleX, Trash2 } from 'lucide-react';
@@ -9,9 +10,10 @@ interface Props {
     onClose: () => void;
     mode: 'Ajouter' | 'Modifier';
     reminder: Reminder | null;
+    modePrescription?: 'ordonnance' | 'rappel'; // Nouvelle prop
 }
 
-const PopUp: FC<Props> = ({ onClose, mode, reminder }) => {
+const PopUp: FC<Props> = ({ onClose, mode, reminder, modePrescription }) => {
     const { addReminder, modifyReminder, delReminder } = useReminders();
 
     const [name, setName] = useState(reminder === null ? '' : reminder.name);
@@ -19,7 +21,6 @@ const PopUp: FC<Props> = ({ onClose, mode, reminder }) => {
         reminder === null ? null : reminder.heurePrise,
     );
     const [frequence, setFrequence] = useState(reminder === null ? 1 : reminder.frequence);
-
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
@@ -31,32 +32,32 @@ const PopUp: FC<Props> = ({ onClose, mode, reminder }) => {
                 addReminder(name, heurePrise, frequence);
                 onClose();
             }
-
         }
     };
 
     return (
         <div className="Screen">
             <form className="PopUp" onSubmit={handleSubmit}>
-                <h2>{mode === 'Ajouter' ? 'Créer un rappel' : 'Modifier le rappel'}</h2>
+                {/* Modifie le texte en fonction de modePrescription */}
+                <h2>{mode === 'Ajouter' ? (modePrescription === 'ordonnance' ? 'Ajouter ordonnance' : 'Créer un rappel') : 'Modifier le rappel'}</h2>
                 <button
                     type="button"
                     title="Fermer la PopUp"
                     onClick={onClose} className="crossIcon">
-                    <CircleX size={24}/>
+                    <CircleX size={24} />
                 </button>
-                <div className="title">Nom du rappel</div>
+                <div className="title">Nom de l'ordonnance</div>
                 <input
                     type="text"
-                    required= {true}
+                    required={true}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Nom du rappel"
+                    placeholder={modePrescription === 'ordonnance' ? 'Nom de l’ordonnance' : 'Nom du rappel'}
                 />
                 <div className="title">Fréquence du rappel</div>
                 <input
                     type="number"
-                    required= {true}
+                    required={true}
                     value={frequence}
                     placeholder="Fréquence du rappel"
                     min={1}
@@ -69,15 +70,15 @@ const PopUp: FC<Props> = ({ onClose, mode, reminder }) => {
                         actualHour={heurePrise}
                     />
                     <button type="submit" title={
-                        mode === 'Ajouter' ? 'Ajouter le rappel' : 'Modifier le rappel'
+                        mode === 'Ajouter' ? 'Ajouter l’ordonnance' : 'Modifier le rappel'
                     }>{mode}</button>
                     {reminder && (
-                        <button className="deleteButton" title={'Supprimer le rappel'}
+                        <button className="deleteButton" title={'Supprimer l’ordonnance'}
                             onClick={() => {
                                 delReminder(reminder.id);
                                 onClose();
                             }}>
-                            <Trash2 size={10}/> Supprimer le rappel
+                            <Trash2 size={10} /> Supprimer l’ordonnance
                         </button>
                     )}
                 </div>
