@@ -1,14 +1,15 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { getUserInfo, createUser as apiCreateUser } from '../services/userServices.tsx';
 import { UserRole } from '../models/UserRole.ts';
-import { UserContext, UserContextType } from './UserContext.tsx';
+import { User } from '../models/User.ts';
+import { UserContext } from './UserContext.tsx';
 
 interface UserProviderProps {
     children: ReactNode;
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<UserContextType['user']>(null);
+    const [user, setUser] = useState<User | null | undefined>(undefined);
 
     useEffect(() => {
         const loadUserInfo = async () => {
@@ -27,7 +28,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
         setUser(newUser);
     };
 
-    if (user === null) {
+    if (user === undefined) {
         return <div>Loading...</div>;
     }
 
