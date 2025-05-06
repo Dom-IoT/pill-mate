@@ -48,7 +48,7 @@ const Dashboard: FC = () => {
                     label="Gestion des stocks"
                     icon={<ClipboardList size={iconSize} />}
                     color="green"
-                    path="/stocks"
+                    path="/stock"
                 />
                 <DashboardButton
                     label="Ordonnance"

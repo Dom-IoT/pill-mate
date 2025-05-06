@@ -1,5 +1,8 @@
 import {
     AllowNull,
+    BeforeCreate,
+    BeforeDestroy,
+    BeforeUpdate,
     BelongsTo,
     Column,
     DataType,
@@ -8,6 +11,8 @@ import {
     Model,
     Table,
 } from 'sequelize-typescript';
+
+import { ReminderService } from '../services/reminderService';
 import { Medication } from './Medication';
 import { User } from './User';
 
@@ -62,10 +67,7 @@ export class Reminder extends Model {
 
     @AllowNull(false)
     @Min(0.01)
-    @Column({
-        type: DataType.DECIMAL(6, 2),
-        allowNull: false,
-    })
+    @Column(DataType.DECIMAL(6, 2))
     declare quantity: number;
 
     @AllowNull(false)
@@ -87,4 +89,31 @@ export class Reminder extends Model {
 
     @BelongsTo(() => User)
     declare user: User;
+
+    /**
+     * Computes the exact `Date` object when the reminder should trigger.
+     *
+     * @returns A `Date` instance representing the next scheduled trigger of the reminder.
+     */
+    public get nextDateTime(): Date {
+        const [hours, minutes] = this.time.split(':').map(Number);
+        const nextDate = new Date(this.nextDate);
+        nextDate.setHours(hours, minutes, 0, 0);
+        return nextDate;
+    }
+
+    @BeforeCreate
+    static onCreate(instance: Reminder) {
+        ReminderService.setUpTimeout(instance);
+    }
+
+    @BeforeUpdate
+    static onUpdate(instance: Reminder) {
+        ReminderService.updateTimeout(instance);
+    }
+
+    @BeforeDestroy
+    static onDestroy(instance: Reminder) {
+        ReminderService.clearTimeout(instance);
+    }
 }

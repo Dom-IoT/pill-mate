@@ -10,6 +10,7 @@ map:
 ingress: true
 panel_icon: mdi:pill-multiple
 panel_title: Pill Mate
+panel_admin: false
 hassio_api: true
 homeassistant_api: true
 hassio_role: admin

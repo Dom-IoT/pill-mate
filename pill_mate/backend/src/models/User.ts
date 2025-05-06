@@ -32,31 +32,10 @@ import {
     Table,
     Unique,
 } from 'sequelize-typescript';
+
 import { Reminder } from './Reminder';
 import { Medication } from './Medication';
-
-/**
- * @openapi
- * components:
- *   schemas:
- *     UserRole:
- *       type: integer
- *       description: >
- *          The role of the user.
- *           * `0` - Helped, the user will be helped by the application.
- *           * `1` - Helper, the user will help an other user.
- *       enum: [0, 1]
- *       example: 1
- */
-export enum UserRole {
-    HELPED,
-    HELPER,
-}
-
-export const isUserRole = (value: unknown): value is UserRole => {
-    return typeof value === 'number' && value in UserRole;
-};
-
+import { UserRole } from './UserRole';
 
 /**
  * @openapi
@@ -118,16 +97,16 @@ export class User extends Model {
     @HasMany(() => Reminder)
     declare reminders: Reminder[];
 
-    declare getReminders: BelongsToManyGetAssociationsMixin<Reminder>;
-    declare setReminders: BelongsToManySetAssociationsMixin<Reminder, number>;
-    declare addReminder: BelongsToManyAddAssociationMixin<Reminder, number>;
-    declare addReminders: BelongsToManyAddAssociationsMixin<Reminder, number>;
-    declare removeReminder: BelongsToManyRemoveAssociationMixin<Reminder, number>;
-    declare removeReminders: BelongsToManyRemoveAssociationsMixin<Reminder, number>;
-    declare hasReminder: BelongsToManyHasAssociationMixin<Reminder, number>;
-    declare hasReminders: BelongsToManyHasAssociationsMixin<Reminder, number>;
-    declare countReminders: BelongsToManyCountAssociationsMixin;
-    declare createReminder: BelongsToManyCreateAssociationMixin<Reminder>;
+    declare getReminders: HasManyGetAssociationsMixin<Reminder>;
+    declare setReminders: HasManySetAssociationsMixin<Reminder, number>;
+    declare addReminder: HasManyAddAssociationMixin<Reminder, number>;
+    declare addReminders: HasManyAddAssociationsMixin<Reminder, number>;
+    declare removeReminder: HasManyRemoveAssociationMixin<Reminder, number>;
+    declare removeReminders: HasManyRemoveAssociationsMixin<Reminder, number>;
+    declare hasReminder: HasManyHasAssociationMixin<Reminder, number>;
+    declare hasReminders: HasManyHasAssociationsMixin<Reminder, number>;
+    declare countReminders: HasManyCountAssociationsMixin;
+    declare createReminder: HasManyCreateAssociationMixin<Reminder>;
 
     @HasMany(() => Medication)
     declare medications: Medication[];
