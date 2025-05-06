@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import { HTTP_400_BAD_REQUEST } from './status';
 
+const MAX_DELAY = 2147483647;  // ms ~= 24.8 days
+
 export const asyncErrorHandler = (
     func: (request: Request, response: Response) => Promise<void>,
 ) => {
@@ -67,3 +69,62 @@ export const formatDate = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
+
+/**
+ * An util class to handle setTimeout with delay bigger than the maximum allowed
+ * by the Node.js `setTimeout`.
+ *
+ * Node.js's native `setTimeout` has a maximum delay of ~24.8 days (2^31-1 ms).
+ * `BigTimeout` chains multiple `setTimeout` calls if the requested delay exceeds that limit.
+ *
+ * https://nodejs.org/api/timers.html#settimeoutcallback-delay-args
+ */
+export class BigTimeout {
+    private timeout?: NodeJS.Timeout;
+
+    /**
+     * Internal constructor, use `BigTimeout.set()` to create an instance.
+     *
+     * @param callback - The function to call when the timer elapses.
+     * @param delayMs - The number of milliseconds to wait before calling the callback.
+     */
+    private constructor(callback: () => void, delayMs: number) {
+        this.setBigTimeout(callback, delayMs);
+    }
+
+    /**
+     * Create an start and new `BigTimeout`.
+     *
+     * @param callback - The function to call when the timer elapses.
+     * @param delayMs - The number of milliseconds to wait before calling the callback.
+     * @retuns An instance of `BigTimeout`, which an be cleared if needed.
+     */
+    static set(callback: () => void, delayMs: number): BigTimeout {
+        return new BigTimeout(callback, delayMs);
+    }
+
+    /**
+     * Recursively call `setTimeout` until the remaining delay is within the safe
+     * range.
+     *
+     * @param callback - The function to call when the timer elapses.
+     * @param delayMs - The remaining number of milliseconds to wait before calling the `callback`.
+     */
+    private setBigTimeout(callback: () => void, delayMs: number) {
+        if (delayMs <= MAX_DELAY) {
+            this.timeout = setTimeout(callback, delayMs);
+            return;
+        }
+
+        this.timeout = setTimeout(() => {
+            this.setBigTimeout(callback, delayMs - MAX_DELAY);
+        }, MAX_DELAY);
+    }
+
+    /**
+     * Cancel the timeout.
+     */
+    clear() {
+        clearTimeout(this.timeout);
+    }
+}

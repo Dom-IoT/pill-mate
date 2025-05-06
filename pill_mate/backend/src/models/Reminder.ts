@@ -1,5 +1,8 @@
 import {
     AllowNull,
+    BeforeCreate,
+    BeforeDestroy,
+    BeforeUpdate,
     BelongsTo,
     Column,
     DataType,
@@ -8,6 +11,8 @@ import {
     Model,
     Table,
 } from 'sequelize-typescript';
+
+import { ReminderService } from '../services/reminderService';
 import { Medication } from './Medication';
 import { User } from './User';
 
@@ -95,5 +100,20 @@ export class Reminder extends Model {
         const nextDate = new Date(this.nextDate);
         nextDate.setHours(hours, minutes, 0, 0);
         return nextDate;
+    }
+
+    @BeforeCreate
+    static onCreate(instance: Reminder) {
+        ReminderService.setUpTimeout(instance);
+    }
+
+    @BeforeUpdate
+    static onUpdate(instance: Reminder) {
+        ReminderService.updateTimeout(instance);
+    }
+
+    @BeforeDestroy
+    static onDestroy(instance: Reminder) {
+        ReminderService.clearTimeout(instance);
     }
 }

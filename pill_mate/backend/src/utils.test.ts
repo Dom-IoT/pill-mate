@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import {
     asyncErrorHandler,
+    BigTimeout,
     checkUnexpectedKeys,
     formatDate,
     getNextDate,
@@ -186,4 +187,91 @@ describe('formatYear function', () => {
         expect(formatDate(new Date('2025-03-13'))).toBe('2025-03-13');
         expect(formatDate(new Date('2030-12-01'))).toBe('2030-12-01');
     });
+});
+
+describe('BigTimeout class', () => {
+    it('should call the callback after delay <= MAX_DELAY', () => {
+        const callback = jest.fn();
+        const delay = 1000;
+
+        BigTimeout.set(callback, delay);
+
+        jest.advanceTimersByTime(1);
+
+        expect(callback).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(delay - 2);
+
+        expect(callback).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call the callback after delay > MAX_DELAY', () => {
+        const callback = jest.fn();
+        const delay = 4000000000;
+
+        BigTimeout.set(callback, delay);
+
+        jest.advanceTimersByTime(1);
+
+        expect(callback).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(delay - 2);
+
+        expect(callback).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('should prevents callback from firing after delay <= MAX_DELAY', () => {
+        const callback = jest.fn();
+        const delay = 1000;
+
+        const timeout = BigTimeout.set(callback, delay);
+
+        timeout.clear();
+
+        jest.advanceTimersByTime(delay);
+
+        expect(callback).not.toHaveBeenCalled();
+    });
+
+    it(
+        'should not call the callback if cleared during the first timeout when delay > MAX_DELAY',
+        () => {
+            const callback = jest.fn();
+            const delay = 4000000000;
+
+            const timeout = BigTimeout.set(callback, delay);
+
+            timeout.clear();
+
+            jest.advanceTimersByTime(delay);
+
+            expect(callback).not.toHaveBeenCalled();
+        },
+    );
+
+    it(
+        'should not call the callback if cleared during a chained timeout when delay > MAX_DELAY',
+        () => {
+            const callback = jest.fn();
+            const delay = 4000000000;
+
+            const timeout = BigTimeout.set(callback, delay);
+
+            jest.advanceTimersByTime(delay - 1);
+
+            timeout.clear();
+
+            jest.advanceTimersByTime(delay);
+
+            expect(callback).not.toHaveBeenCalled();
+        },
+    );
 });
