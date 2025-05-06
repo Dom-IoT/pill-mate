@@ -12,6 +12,7 @@ import {
     HTTP_404_NOT_FOUND,
 } from '../status';
 import { asyncErrorHandler, checkUnexpectedKeys } from '../utils';
+import { HomeAssistantService } from '../services/HomeAssistantService';
 
 export const me = asyncErrorHandler(async (request: Request, response: Response) => {
     assert(request.user !== undefined);
@@ -21,6 +22,7 @@ export const me = asyncErrorHandler(async (request: Request, response: Response)
         userName: request.homeAssistantUserName,
         userDisplayName: request.homeAssistantUserDisplayName,
         role: request.user.role,
+        mobileAppDevice: request.user.mobileAppDevice,
     });
 });
 
@@ -35,15 +37,25 @@ export const me = asyncErrorHandler(async (request: Request, response: Response)
  *       properties:
  *         role:
  *           $ref: '#/components/schemas/UserRole'
+ *         mobileAppDevice:
+ *           type: string
+ *           nullable: true
+ *           description: The devices where notifications will be send.
+ *           example: Redmi Note 8T
  */
 type CreateUserBody = {
     role: unknown,
+    mobileAppDevice: unknown,
 };
 
 export const createUser = asyncErrorHandler(async (request: Request, response: Response) => {
-    if (!checkUnexpectedKeys<CreateUserBody>(request.body, ['role'], response)) return;
+    if (!checkUnexpectedKeys<CreateUserBody>(
+        request.body,
+        ['role', 'mobileAppDevice'],
+        response,
+    )) return;
 
-    const { role } = request.body as CreateUserBody;
+    const { role, mobileAppDevice } = request.body as CreateUserBody;
 
     if (role === undefined) {
         response
@@ -56,6 +68,19 @@ export const createUser = asyncErrorHandler(async (request: Request, response: R
         response
             .status(HTTP_400_BAD_REQUEST)
             .json({ message: 'Invalid role.' });
+        return;
+    }
+
+    if ((mobileAppDevice !== undefined &&
+         mobileAppDevice !== null &&
+         typeof mobileAppDevice !== 'string') ||
+        (typeof mobileAppDevice === 'string' &&
+         (await HomeAssistantService.getMobileAppDevices()).find(
+             device => device.name === mobileAppDevice,
+         ) === undefined)) {
+        response
+            .status(HTTP_400_BAD_REQUEST)
+            .json({ message: 'Invalid mobileAppDevice.' });
         return;
     }
 
@@ -75,6 +100,7 @@ export const createUser = asyncErrorHandler(async (request: Request, response: R
     const newUser = await User.create({
         homeAssistantUserId: request.homeAssistantUserId,
         role,
+        mobileAppDevice,
     });
 
     response
@@ -85,6 +111,7 @@ export const createUser = asyncErrorHandler(async (request: Request, response: R
             userName: request.homeAssistantUserName,
             userDisplayName: request.homeAssistantUserDisplayName,
             role: newUser.role,
+            mobileAppDevice: newUser.mobileAppDevice,
         });
 });
 

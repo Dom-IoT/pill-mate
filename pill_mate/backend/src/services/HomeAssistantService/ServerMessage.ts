@@ -16,6 +16,11 @@ export type PongMessage = IdMessage & { type: 'pong' };
 export type EntitySourceResult = {
     [key: string]: { domain: string },
 };
+export type Device = {
+    name: string,
+    identifiers: string[][],
+};
+export type GetDevicesResult = Device[];
 export type GetStatesResult = Array<{
     entity_id: string,
     state: string,
@@ -56,6 +61,7 @@ export type PersonListResult = {
 };
 type Result = (
     | EntitySourceResult
+    | GetDevicesResult
     | GetStatesResult
     | GetServicesResult
     | PersonListResult

@@ -25,6 +25,7 @@ import {
     BelongsToMany,
     Column,
     DataType,
+    Default,
     ForeignKey,
     HasMany,
     Length,
@@ -62,6 +63,11 @@ import { UserRole } from './UserRole';
  *           example: John Doe
  *         role:
  *           $ref: '#/components/schemas/UserRole'
+ *         mobileAppDevice:
+ *           type: string
+ *           nullable: true
+ *           description: The devices where notifications will be send.
+ *           example: Redmi Note 8T
  */
 
 @Table({ timestamps: false })
@@ -76,6 +82,10 @@ export class User extends Model {
     @AllowNull(false)
     @Column
     declare role: UserRole;
+
+    @Default(null)
+    @Column(DataType.STRING(255))
+    declare mobileAppDevice: string | null;
 
     @BelongsToMany(() => User, () => UserHelp)
     declare helpedUsers: User[];

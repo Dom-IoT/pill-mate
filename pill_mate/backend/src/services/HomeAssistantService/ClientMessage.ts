@@ -22,6 +22,7 @@ export type CallServiceMessage = {
 };
 export type EntitySourceMessage = { type: 'entity/source' };
 export type GetConfigMessage = { type: 'get_config' };
+export type GetDevicesMessage = { type: 'config/device_registry/list' };
 export type GetPanelsMessage = { type: 'get_panels' };
 export type GetServicesMessage = { type: 'get_services' };
 export type GetStatesMessage = { type: 'get_states' };
@@ -33,6 +34,7 @@ export type CommandMessageWithoutId = (
     | CallServiceMessage
     | EntitySourceMessage
     | GetConfigMessage
+    | GetDevicesMessage
     | GetPanelsMessage
     | GetServicesMessage
     | GetStatesMessage
