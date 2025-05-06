@@ -60,7 +60,7 @@ const Dashboard: FC = () => {
                     label="Paramètres"
                     icon={<Settings size={iconSize} />}
                     color="orange"
-                    path="/settings"
+                    path="/"
                 />
             </div>
         </div>

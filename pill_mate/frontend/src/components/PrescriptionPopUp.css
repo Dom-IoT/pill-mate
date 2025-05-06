@@ -1,5 +1,4 @@
-
-.PopUp {
+.PrescriptionPopUp {
     position: relative;
     background-color: var(--red);
     display: flex;
@@ -15,7 +14,8 @@
 
 .title {
     align-self: left;
-    margin: 5px;
+    margin-top: 10px 5px;
+    font-size: 22px;
 }
 
 .submit{
@@ -26,10 +26,4 @@
     padding: 8px;
     border-radius: 5px;
     font-size: 20px;
-}
-
-.title{
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-size: 22px;
 }

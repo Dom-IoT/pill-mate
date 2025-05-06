@@ -2,7 +2,6 @@ import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Prescription.css';
 import { Scan } from 'lucide-react';
-// import TitleBar from '../components/TitleBar.tsx';
 import PrescriptionPopUp from '../components/PrescriptionPopUp.tsx';
 import PrescriptionCard from '../components/PrescriptionCard.tsx';
 
@@ -14,7 +13,10 @@ const Prescription: FC = () => {
             id: '1',
             patient: 'Ordonnance 1',
             date: '6 Juin 2024',
-            medications: ['Metformine 500mg 2X/Jour => Efficace sur la baisse de glycémie', 'Amarel 2mg => Permet la lutte contre le taux de sucre dans le sang'],
+            medications: [
+                'Metformine 500mg 2X/Jour => Efficace sur la baisse de glycémie',
+                'Amarel 2mg => Permet la lutte contre le taux de sucre dans le sang',
+            ],
         },
         {
             id: '2',
@@ -28,17 +30,14 @@ const Prescription: FC = () => {
         <div className="Prescription">
             <h1 className="Title">Historique des ordonnances</h1>
             <div className="prescriptionList">
-            <div className="addPrescriptionContainer">
-                <button onClick={() => setShow(true)} className="addPrescriptionButton">
-                    Ajouter une ordonnance
-                </button>
-            <div className="scanIconBox">
-                <Scan size={24} />
-            </div>
-        </div>
-
-
-
+                <div className="addPrescriptionContainer">
+                    <button onClick={() => setShow(true)} className="addPrescriptionButton">
+                        Ajouter une ordonnance
+                    </button>
+                    <div className="scanIconBox">
+                        <Scan size={24} />
+                    </div>
+                </div>
 
                 {show && <PrescriptionPopUp onClose={() => setShow(false)} />}
 
@@ -59,7 +58,6 @@ const Prescription: FC = () => {
             <nav>
                 <Link to="/" className="navButton">Retour</Link>
             </nav>
-
         </div>
     );
 };

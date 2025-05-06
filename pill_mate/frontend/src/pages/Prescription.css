@@ -1,72 +1,72 @@
 
 .Prescription {
-  background-color: var(--red);
-  min-height: 100vh;
-  padding: 20px;
-  color: white;
+    background-color: var(--red);
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
 }
 
 .Prescription .Title {
-  color: white;
+    color: white;
 }
 
 .Prescription .prescriptionList {
-  background-color: #555;
-  border-radius: 10px;
-  padding: 20px;
+    background-color: #555;
+    border-radius: 10px;
+    padding: 20px;
 }
 
 .addPrescriptionContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
 }
 
 .addPrescriptionButton {
-  padding: 15px;
-  font-size: 24px;
-  background-color: #333;
-  color: white;
-  border-radius: 10px;
-  text-align: center;
-  cursor:pointer;
+    padding: 15px;
+    font-size: 24px;
+    background-color: #333;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    cursor:pointer;
 }
 
 .addPrescriptionButton:hover {
-  background-color: #555;
+    background-color: #555;
 }
 
 .navButton {
-  padding: 12px;
-  font-size: 20px;
-  background-color: #333;
-  color: white;
-  border-radius: 10px;
-  text-align: center;
+    padding: 12px;
+    font-size: 20px;
+    background-color: #333;
+    color: white;
+    border-radius: 10px;
+    text-align: center;
 }
 
 .navButton:hover {
-  background-color: #555;
+    background-color: #555;
 }
 
 nav {
-  text-align: center;
-  margin-top: 180px;
-  font-size: 60px;
+    text-align: center;
+    margin-top: 180px;
+    font-size: 60px;
 }
 
 .scanIconBox {
-  background-color: #888;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    background-color: #888;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .scanIconBox:hover {
-  background-color: #444;
+    background-color: #444;
 }
