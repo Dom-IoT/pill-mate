@@ -1,3 +1,4 @@
+import assert from 'assert';
 /**
  * @openapi
  * components:
@@ -24,4 +25,21 @@ export enum MedicationUnit {
 
 export const isMedicationUnit = (value: unknown): value is MedicationUnit => {
     return typeof value === 'number' && value in MedicationUnit;
+};
+
+export const medicationUnitToString = (medicationUnit: MedicationUnit, plural: boolean) => {
+    switch (medicationUnit) {
+    case MedicationUnit.TABLET:
+        return plural ? 'comprimés' : 'comprimé';
+    case MedicationUnit.PILL:
+        return plural ? 'pilules' : 'pilule';
+    case MedicationUnit.ML:
+        return plural ? 'millilitres' : 'millilitre';
+    case MedicationUnit.DROPS:
+        return 'gouttes';
+    case MedicationUnit.UNIT:
+        return plural ? 'unités' : 'unité';
+    default:
+        assert(false, 'unreachable');
+    }
 };
