@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useUser } from './context/useUser.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import Calendar from './pages/Calendar.tsx';
+import Prescription from './pages/Prescription.tsx';
 import CreateUser from './pages/CreateUser.tsx';
 import Stock from './pages/Stock.tsx' ;
 
@@ -22,6 +23,7 @@ const AppRoutes: React.FC = () => {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/calendar" element={<Calendar />} />
                     <Route path="/stock" element={<Stock />} />
+                    <Route path="/prescription" element={<Prescription />} />
                     <Route path="*" element={<Navigate to="/" />} />
                 </>
             )}
