@@ -1,8 +1,10 @@
 import assert from 'assert';
 
 import { createLogger } from '../logger';
+import { medicationUnitToString } from '../models/MedicationUnit';
 import { Reminder } from '../models/Reminder';
 import { BigTimeout, formatDate } from '../utils';
+import { HomeAssistantService } from './HomeAssistantService';
 
 const logger = createLogger('backend');
 
@@ -32,15 +34,32 @@ export class ReminderService {
         logger.info(`Triggered reminder ${reminder.id} ` +
                     `for user ${reminder.userId} ` +
                     `target time ${reminder.nextDate} ${reminder.time}`);
-        // TODO: make the reminder actually do something
-        // https://github.com/Dom-IoT/pill-mate/issues/14
+
+        const user = await reminder.getUser({ attributes: ['mobileAppDevice'] });
+        const medication = await reminder.getMedication();
+        medication.quantity = Math.max(0, medication.quantity - reminder.quantity);
+        medication.save();
+        if (user.mobileAppDevice !== null) {
+            const unit = medicationUnitToString(medication.unit, reminder.quantity > 1);
+            let message = `Il est ${reminder.time}.\n` +
+                          `Prends ${reminder.quantity} ${unit} de ${medication.name}.`;
+            if (medication.indication !== null) {
+                message += `\nIndication: ${medication.indication}`;
+            }
+            await Promise.all([
+                HomeAssistantService.sendNotification(user.mobileAppDevice, {
+                    title: 'Pill Mate',
+                    message,
+                }),
+                HomeAssistantService.openMobileAppOnDevice(user.mobileAppDevice),
+            ]);
+        }
 
         const newNextDate = new Date(reminder.nextDate);
         newNextDate.setDate(newNextDate.getDate() + reminder.frequency);
         reminder.nextDate = formatDate(newNextDate);
         await reminder.save();
     }
-
 
     static setUpTimeout(reminder: Reminder) {
         reminderTimeouts.set(reminder.id, BigTimeout.set(
