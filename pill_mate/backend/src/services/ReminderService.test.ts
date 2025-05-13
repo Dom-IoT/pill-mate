@@ -1,12 +1,21 @@
 import { MedicationUnit } from '../models/MedicationUnit';
 import { Reminder } from '../models/Reminder';
 import { BigTimeout } from '../utils';
+import { HomeAssistantService } from './HomeAssistantService';
 import { ReminderService } from './ReminderService';
 
 jest.mock('../models/Reminder', () => {
     return {
         Reminder: {
             findAll: jest.fn(),
+        },
+    };
+});
+
+jest.mock('./HomeAssistantService', () => {
+    return {
+        HomeAssistantService: {
+            playMedia: jest.fn(),
         },
     };
 });
@@ -120,6 +129,11 @@ describe('setUpTimeout method', () => {
         expect(reminder.getUser).toHaveBeenCalledWith({ attributes: ['mobileAppDevice'] });
         expect(reminder.save).toHaveBeenCalledTimes(1);
         expect(reminder.nextDate).toBe('2025-03-16');
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledTimes(1);
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledWith(
+            'http://localhost:3000/api/static/alarm.mp3',
+            'media_player.vlc_telnet',
+        );
     });
 
     it('should not make the medication quantity less than 0', async () => {
@@ -154,6 +168,11 @@ describe('setUpTimeout method', () => {
         expect(reminder.getUser).toHaveBeenCalledWith({ attributes: ['mobileAppDevice'] });
         expect(reminder.save).toHaveBeenCalledTimes(1);
         expect(reminder.nextDate).toBe('2025-03-16');
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledTimes(1);
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledWith(
+            'http://localhost:3000/api/static/alarm.mp3',
+            'media_player.vlc_telnet',
+        );
     });
 });
 

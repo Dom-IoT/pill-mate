@@ -39,13 +39,13 @@ export class ReminderService {
         const medication = await reminder.getMedication();
         medication.quantity = Math.max(0, medication.quantity - reminder.quantity);
         medication.save();
+        const unit = medicationUnitToString(medication.unit, reminder.quantity > 1);
+        let message = `Il est ${reminder.time}.\n` +
+                      `Prends ${reminder.quantity} ${unit} de ${medication.name}.`;
+        if (medication.indication !== null) {
+            message += `\nIndication: ${medication.indication}`;
+        }
         if (user.mobileAppDevice !== null) {
-            const unit = medicationUnitToString(medication.unit, reminder.quantity > 1);
-            let message = `Il est ${reminder.time}.\n` +
-                          `Prends ${reminder.quantity} ${unit} de ${medication.name}.`;
-            if (medication.indication !== null) {
-                message += `\nIndication: ${medication.indication}`;
-            }
             await Promise.all([
                 HomeAssistantService.sendNotification(user.mobileAppDevice, {
                     title: 'Pill Mate',
@@ -54,6 +54,18 @@ export class ReminderService {
                 HomeAssistantService.openMobileAppOnDevice(user.mobileAppDevice),
             ]);
         }
+
+        // await HomeAssistantService.ttsSpeak(
+        //     message,
+        //     'media_player.vlc_telnet',
+        //     'tts.google_translate_en_com',
+        //     'fr',
+        // );
+
+        await HomeAssistantService.playMedia(
+            'http://localhost:3000/api/static/alarm.mp3',
+            'media_player.vlc_telnet',
+        );
 
         const newNextDate = new Date(reminder.nextDate);
         newNextDate.setDate(newNextDate.getDate() + reminder.frequency);

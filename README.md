@@ -51,3 +51,7 @@ make swagger
 ```
 
 This will open the swagger interface in your browser.
+
+## Credits
+
+Alarm sound from <https://pixabay.com/fr/sound-effects/phone-ringtone-clean-273554/>.

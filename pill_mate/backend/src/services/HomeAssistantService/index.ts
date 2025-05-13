@@ -214,11 +214,19 @@ export class HomeAssistantService {
     }
 
     static async ttsSpeak(message: string, speaker: string, ttsEntity: string, language: string) {
-        HomeAssistantService.callServices('tts', 'speak', {
+        await HomeAssistantService.callServices('tts', 'speak', {
             media_player_entity_id: speaker,
             entity_id: ttsEntity,
             message,
             language,
+        });
+    }
+
+    static async playMedia(url: string, speaker: string) {
+        await HomeAssistantService.callServices('media_player', 'play_media', {
+            media_content_id: url,
+            media_content_type: 'audio/mp3',
+            entity_id: speaker,
         });
     }
 

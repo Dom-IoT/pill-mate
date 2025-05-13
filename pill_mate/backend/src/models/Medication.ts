@@ -59,7 +59,7 @@ export class Medication extends Model {
     declare indication: string | null;
 
     @AllowNull(false)
-    @Min(0.01)
+    @Min(0.0)
     @Column({
         type: DataType.DECIMAL(6, 2),
         allowNull: false,

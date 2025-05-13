@@ -11,11 +11,16 @@ mkdir --parents /etc/nginx/http.d
 cat << EOF > /etc/nginx/http.d/ingress.conf
 server {
     listen 8099;
-    allow  172.30.32.2;
-    deny   all;
+
+    location /api/static/ {
+        proxy_pass http://127.0.0.1:${BACKEND_PORT}/static/;
+        allow all;
+    }
 
     location /api/ {
         proxy_pass http://127.0.0.1:${BACKEND_PORT}/;
+        allow  172.30.32.2;
+        deny   all;
     }
 EOF
 
@@ -24,6 +29,8 @@ if [ $DEV -eq 0 ]; then
     location / {
         root /app/frontend/dist;
         index index.html;
+        allow  172.30.32.2;
+        deny   all;
     }
 }
 EOF

@@ -20,6 +20,8 @@ app.use(morgan('dev', {
     },
 }));
 
+app.use('/static', express.static('assets'));
+
 app.use(applicationJson);
 app.use(express.json());
 
