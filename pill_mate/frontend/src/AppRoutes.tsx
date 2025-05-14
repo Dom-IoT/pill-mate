@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useUser } from './context/useUser.tsx';
+import { useUser } from './context/useUser.ts';
 import Dashboard from './pages/Dashboard.tsx';
 import Calendar from './pages/Calendar.tsx';
 import Prescription from './pages/Prescription.tsx';

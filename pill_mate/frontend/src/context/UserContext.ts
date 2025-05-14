@@ -1,6 +1,5 @@
 import { createContext } from 'react';
-import { UserRole } from '../models/UserRole';
-import { User } from '../models/User';
+import { User, UserRole } from '../models/User/index.ts';
 
 export interface UserContextType {
   user: User | null;

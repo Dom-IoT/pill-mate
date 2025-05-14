@@ -1,34 +1,37 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Link } from 'react-router-dom';
 import 'react-calendar/dist/Calendar.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import './Stock.css';
-import { useReminders } from '../context/UseReminder';
+import { useMedications } from '../context/useMedication.ts';
 import RegisteredObject from '../components/RegisteredObject';
 import AddButton from '../components/AddButton';
+import PopUpStock from '../components/PopUpStock.tsx';
 
 const Stock: FC = () => {
-    const { reminders } = useReminders();
+    const { medications } = useMedications();
+    const [show, setShow] = useState(false);
 
     return (
         <div className="Stock">
             <h1 className="Title">Liste des médicament déjà enregistrés</h1>
             <div className="StockList">
-                <div>
+                <div onClick={() => setShow(true)}>
                     <AddButton
-                        title="Ajouter un médicament"
+                        title="Ajouter un rappel"
                         color="green"
                     />
                 </div>
-                {/* {show && <PopUp onClose={() => setShow(false)}/>} */}
+                {show &&
+                    <PopUpStock onClose={() => setShow(false)} mode="Ajouter" medication={null}
+                    />}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {reminders.length > 0 ? (
-                        reminders.map((reminder) => (
+                    {medications.length > 0 ? (
+                        medications.map((medication, index) => (
                             <RegisteredObject
-                                key={reminder.id}
-                                rappel={reminder.name}
+                                key={ index }
+                                medication={ medication }
                                 color="green"
-                                date={reminder.date}
                             />
                         ))
                     ) : (

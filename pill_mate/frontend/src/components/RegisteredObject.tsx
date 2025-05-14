@@ -1,30 +1,27 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
+import { Medication, MedicationUnitLabel } from '../models/Medication/index';
 import './RegisteredObject.css';
+import PopUpStock from './PopUpStock';
 
 interface Props {
-    rappel: string,
-    color:'blue' | 'green' | 'red' | 'orange',
-    date: Date,
+    medication: Medication,
+    color:'blue' | 'green' | 'red' | 'orange'
 };
 
-const RegisteredObject: FC<Props> = ({rappel, color, date }) => {
-    let buttonText = 'Modifier';
-
-    if (color === 'blue') {
-        buttonText = 'Modifier';
-    } else if (color === 'green') {
-        buttonText = 'Ajouter stock';
-    }
+const RegisteredObject: FC<Props> = ({medication, color}) => {
+    const [show, setShow] = useState(false);
 
     return (
         <div className={`RegisteredObject ${color}`}>
             <div>
-                <p>{rappel}</p>
-                <p>{date.toLocaleString()}</p>
+                <p>{medication.name}{medication.indication ? `, (${medication.indication})` :''}</p>
+                <p>Il reste {medication.quantity} {MedicationUnitLabel[medication.unit]}</p>
             </div>
-            <button className={`button ${color}`}>
-                {buttonText}
-            </button>
+            <div className="button" onClick={() => setShow(true)}>Modifier</div>
+            {show && <PopUpStock onClose={() => setShow(false)}
+                mode="Modifier"
+                medication={medication}
+            />}
         </div>
     );
 };

@@ -4,7 +4,7 @@
     gap: 10px;
     position: relative;
     background-color: var(--green);
-    height: 100vh;
+    min-height: 100vh;
     align-items: center;
     padding: 15px;
     box-sizing: border-box;
@@ -24,9 +24,11 @@
 
 }
 
-.Link {
+.Stock .Link {
     font-size: 1rem;
     padding: 5px;
     color: white;
     bottom: 10px;
+    background-color: var(--light_green);
+    border: 1px solid black;
 }

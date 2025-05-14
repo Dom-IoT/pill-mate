@@ -4,9 +4,9 @@ import 'react-calendar/dist/Calendar.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import './Calendar.css';
 import AddButton from '../components/AddButton.tsx';
-import RegisteredObject from '../components/RegisteredObject.tsx';
-import { useReminders } from '../context/UseReminder.tsx';
-import PopUp from '../components/PopUp.tsx';
+import ReminderCard from '../components/ReminderCard.tsx';
+import { useReminders } from '../context/useReminder.ts';
+import PopUpCalendar from '../components/PopUpCalendar.tsx';
 
 const Calendar: FC = () => {
     const { reminders } = useReminders();
@@ -22,15 +22,16 @@ const Calendar: FC = () => {
                         color="blue"
                     />
                 </div>
-                {show && <PopUp onClose={() => setShow(false)} mode="Ajouter" reminder={null} />}
+                {show && <PopUpCalendar onClose={
+                    () => setShow(false)} mode="Ajouter" reminder={null}
+                />}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {reminders.length > 0 ? (
                         reminders.map((reminder) => (
-                            <RegisteredObject
+                            <ReminderCard
+                                reminder={reminder}
                                 key={reminder.id}
-                                rappel={reminder.name}
                                 color="blue"
-                                date={reminder.date}
                             />
                         ))
                     ) : (

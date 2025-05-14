@@ -12,9 +12,9 @@
     box-sizing: border-box;
 }
 
-.PopUp {
+.PopUpStock {
     position: relative;
-    background-color: var(--light_blue);
+    background-color: var(--light_green);
     display: flex;
     width: 300px;
     flex-direction: column;
@@ -36,14 +36,30 @@
     align-items: center;
 }
 
-.title {
+.PopUpStock .title {
+    font-size: 1.5rem;
     align-self: left;
     margin: 5px;
 }
 
 .description {
     font-size: 0.75rem;
-    margin-top: 4px;
+    text-align: center;
+}
+
+input {
+    text-align: center;
+}
+
+.input-select {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.input-select input,
+.input-select select {
+  flex: 1;
 }
 
 .deleteButton {
@@ -55,6 +71,7 @@
 }
 
 .Settings {
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
