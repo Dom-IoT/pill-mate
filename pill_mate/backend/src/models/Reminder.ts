@@ -4,8 +4,8 @@ import {
     BelongsToSetAssociationMixin,
 } from 'sequelize';
 import {
+    AfterCreate,
     AllowNull,
-    BeforeCreate,
     BeforeDestroy,
     BeforeUpdate,
     BelongsTo,
@@ -113,11 +113,9 @@ export class Reminder extends Model {
         const nextDate = new Date(this.nextDate);
         nextDate.setHours(hours, minutes, 0, 0);
         return nextDate;
-
-
     }
 
-    @BeforeCreate
+    @AfterCreate
     static onCreate(instance: Reminder) {
         ReminderService.setUpTimeout(instance);
     }
