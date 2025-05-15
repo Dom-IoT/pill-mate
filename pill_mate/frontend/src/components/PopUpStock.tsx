@@ -1,7 +1,7 @@
 import { FC, FormEvent, useState } from 'react';
 import './PopUpStock.css';
 import { CircleX, Trash2 } from 'lucide-react';
-import { Medication, MedicationUnit } from '../models/Medication/index.ts';
+import { Medication, MedicationUnit, MedicationUnitLabel } from '../models/Medication/index.ts';
 import { useMedications } from '../context/useMedication.ts';
 import { useUser } from '../context/useUser.ts';
 
@@ -81,11 +81,21 @@ const PopUpStock: FC<Props> = ({ onClose, mode, medication: medication }) => {
                         onChange={(e) => setQuantity(parseInt(e.target.value))}
                     />
                     <select required= {true} onChange={(e) => setUnit(parseInt(e.target.value))}>
-                        <option value={MedicationUnit.UNIT}>Unit, no unit</option>
-                        <option value={MedicationUnit.TABLET}>Tablet</option>
-                        <option value={MedicationUnit.PILL}>Pill</option>
-                        <option value={MedicationUnit.ML}>Ml, milliliter</option>
-                        <option value={MedicationUnit.DROPS}>Drops</option>
+                        <option value={MedicationUnit.UNIT}>{
+                            MedicationUnitLabel[MedicationUnit.UNIT]
+                        }</option>
+                        <option value={MedicationUnit.TABLET}>{
+                            MedicationUnitLabel[MedicationUnit.TABLET]
+                        }</option>
+                        <option value={MedicationUnit.PILL}>{
+                            MedicationUnitLabel[MedicationUnit.PILL]
+                        }</option>
+                        <option value={MedicationUnit.ML}>{
+                            MedicationUnitLabel[MedicationUnit.ML]
+                        }</option>
+                        <option value={MedicationUnit.DROPS}>{
+                            MedicationUnitLabel[MedicationUnit.DROPS]
+                        }</option>
                     </select>
                 </div>
                 <p className="description">

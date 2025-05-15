@@ -16,11 +16,11 @@ export const addMedicationAPI = async (newMedication: CreateMedication): Promise
 
 export const modifyMedicationAPI = async (
     id: number,
-    oldmedication: PatchMedication,
+    newmedication: PatchMedication,
 ): Promise<Medication> => {
     return await apiService<Medication>({
         method: 'PATCH',
-        body: oldmedication,
+        body: newmedication,
         route: `/medication/${id}`,
     });
 };
