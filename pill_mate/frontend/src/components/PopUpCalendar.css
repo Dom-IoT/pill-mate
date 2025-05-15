@@ -1,0 +1,70 @@
+.Screen {
+    background-color: #00000088;
+    top: 0;
+    left: 0;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+.PopUpCalendar {
+    position: relative;
+    background-color: var(--light_blue);
+    display: flex;
+    width: 300px;
+    flex-direction: column;
+    border: 3px solid black;
+    align-items: center;
+    padding: 15px;
+}
+
+.crossIcon {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    cursor: pointer;
+    color: black;
+    background-color: #00000000;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.PopUpCalendar .title {
+    font-size: 1.5rem;
+    align-self: left;
+    margin: 5px;
+}
+
+.description {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    text-align: center;
+}
+
+input {
+    text-align: center;
+}
+
+.deleteButton {
+    background-color: rgb(255, 105, 97);
+    border: 1px solid black;
+    cursor: pointer;
+    justify-content: center;
+    text-align: center;
+}
+
+.Settings {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}

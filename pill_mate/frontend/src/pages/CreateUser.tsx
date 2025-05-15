@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/useUser';
-import { UserRole } from '../models/UserRole';
+import { UserRole } from '../models/User/index';
 import './CreateUser.css';
 
 const CreateUser = () => {

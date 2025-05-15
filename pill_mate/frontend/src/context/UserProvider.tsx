@@ -1,8 +1,7 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { getUserInfo, createUser as apiCreateUser } from '../services/userServices.tsx';
-import { UserRole } from '../models/UserRole.ts';
-import { User } from '../models/User.ts';
-import { UserContext } from './UserContext.tsx';
+import { getUserInfo, createUser as apiCreateUser } from '../services/userServices.ts';
+import { User, UserRole } from '../models/User/index.ts';
+import { UserContext } from './UserContext.ts';
 
 interface UserProviderProps {
     children: ReactNode;

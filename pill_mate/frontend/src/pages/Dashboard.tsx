@@ -1,11 +1,12 @@
-import { ChangeEvent, FC, useState } from 'react';
+import { FC } from 'react';
+//import { ChangeEvent, useState } from 'react';
 import {
     Calendar,
     ClipboardList,
     Scan,
     Settings,
-    Square,
-    SquareCheckBig,
+    //Square,
+    //SquareCheckBig,
 } from 'lucide-react';
 import './Dashboard.css';
 import DashboardButton from '../components/DashboardButton.tsx';
@@ -13,13 +14,14 @@ import DashboardButton from '../components/DashboardButton.tsx';
 const Dashboard: FC = () => {
     const iconSize = 'clamp(4rem, 10vw, 8rem)';
 
-    const [isChecked, setIsChecked] = useState(false);
-    const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setIsChecked(event.target.checked);
-    };
+    //const [isChecked, setIsChecked] = useState(false);
+    //const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
+    //    setIsChecked(event.target.checked);
+    //};
 
     return (
         <div>
+            {/*
             <div className="checkbox">
                 <label>
                     <input
@@ -37,6 +39,7 @@ const Dashboard: FC = () => {
                     </div>
                 </label>
             </div>
+            */}
             <div className="container">
                 <DashboardButton
                     label="Calendrier"

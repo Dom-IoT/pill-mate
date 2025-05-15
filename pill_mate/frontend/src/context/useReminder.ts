@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import ReminderContext from './ReminderContext.tsx';
+import { ReminderContext } from './ReminderContext.ts';
 
 
 export const useReminders = () => {

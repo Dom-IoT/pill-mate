@@ -4,7 +4,7 @@
     gap: 10px;
     position: relative;
     background-color: var(--blue);
-    height: 100vh;
+    min-height: 100vh;
     align-items: center;
     padding: 15px;
     box-sizing: border-box;
@@ -23,7 +23,7 @@
     gap: 10px;
 }
 
-.Link {
+.Calendar .Link {
     font-size: 1rem;
     padding: 5px;
     color: white;
