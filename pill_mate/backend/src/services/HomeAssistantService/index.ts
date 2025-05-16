@@ -20,7 +20,7 @@ const MAX_RETRY: number = 10;
 const RETRY_DELAY: number = 5_000;  // 5 s
 
 const logger = createLogger('websocket');
-const beckendLogger = createLogger('backend');
+const backendLogger = createLogger('backend');
 
 export type Notification = {
     title?: string,
@@ -152,7 +152,7 @@ export class HomeAssistantService {
             },
         });
         if (!response.ok) {
-            beckendLogger.error('Failed to get Add-on slug');
+            backendLogger.error('Failed to get Add-on slug');
             process.exit(1);
         }
         const { data } = (await response.json()) as { data: { slug: string } };
