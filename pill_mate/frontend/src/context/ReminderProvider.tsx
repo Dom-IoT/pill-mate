@@ -26,8 +26,8 @@ export const ReminderProvider = ({ children }: { children: ReactNode }) => {
         setReminders(prev => [reminder, ...prev]);
     };
 
-    const modifyReminder = async ( id: number, oldreminder: PatchReminder) => {
-        const newreminder = await modifyReminderAPI(id, oldreminder);
+    const modifyReminder = async ( id: number, modifiedNewReminder: PatchReminder) => {
+        const newreminder = await modifyReminderAPI(id, modifiedNewReminder);
         setReminders(prev => prev.map(reminder => reminder.id === id ? newreminder : reminder));
     };
 
