@@ -60,6 +60,7 @@ const PopUpCalendar: FC<Props> = ({ onClose, mode, reminder }) => {
                     value={medicationId}
                     onChange={(e) => setMedicationId(parseInt(e.target.value))}
                 >
+                    <option value="">-- Choisir un médicament --</option>
                     {medications.map((med) => (
                         <option key={med.id} value={med.id}>
                             {med.name}
