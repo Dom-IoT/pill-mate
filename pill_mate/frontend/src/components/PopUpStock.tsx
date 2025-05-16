@@ -27,7 +27,7 @@ const PopUpStock: FC<Props> = ({ onClose, mode, medication: medication }) => {
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
-        if (name && unit && quantity) {
+        if (name && quantity) {
             if (mode === 'Modifier' && medication !== null) {
                 modifyMedication(medication.id, { name, indication, quantity, unit});
                 onClose();
