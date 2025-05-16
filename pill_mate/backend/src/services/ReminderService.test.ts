@@ -1,11 +1,21 @@
+import { MedicationUnit } from '../models/MedicationUnit';
 import { Reminder } from '../models/Reminder';
 import { BigTimeout } from '../utils';
-import { ReminderService } from './reminderService';
+import { HomeAssistantService } from './HomeAssistantService';
+import { ReminderService } from './ReminderService';
 
 jest.mock('../models/Reminder', () => {
     return {
         Reminder: {
             findAll: jest.fn(),
+        },
+    };
+});
+
+jest.mock('./HomeAssistantService', () => {
+    return {
+        HomeAssistantService: {
+            playMedia: jest.fn(),
         },
     };
 });
@@ -92,16 +102,77 @@ describe('setUpTimeout method', () => {
             id: 1,
             nextDate: '2025-03-15',
             frequency: 1,
+            quantity: 2,
             nextDateTime: new Date('2025-03-15T14:00:00Z'),
+            getMedication: jest.fn(),
+            getUser: jest.fn(),
             save: jest.fn(),
         };
+        const medication = {
+            name: '',
+            indication: null,
+            quantity: 3,
+            unit: MedicationUnit.UNIT,
+            save: jest.fn(),
+        };
+        reminder.getMedication.mockResolvedValue(medication);
+        reminder.getUser.mockResolvedValue({ mobileAppDevice: null });
         ReminderService.setUpTimeout(reminder as unknown as Reminder);
         expect(BigTimeout.set).toHaveBeenCalledTimes(1);
         expect(BigTimeout.set).toHaveBeenCalledWith(expect.any(Function), 14400000);
         // Call the trigger function
         await (BigTimeout.set as jest.Mock).mock.calls[0][0]();
+        expect(reminder.getMedication).toHaveBeenCalledTimes(1);
+        expect(medication.save).toHaveBeenCalledTimes(1);
+        expect(medication.quantity).toBe(1);
+        expect(reminder.getUser).toHaveBeenCalledTimes(1);
+        expect(reminder.getUser).toHaveBeenCalledWith({ attributes: ['mobileAppDevice'] });
         expect(reminder.save).toHaveBeenCalledTimes(1);
         expect(reminder.nextDate).toBe('2025-03-16');
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledTimes(1);
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledWith(
+            'http://localhost:3000/api/static/alarm.mp3',
+            'media_player.vlc_telnet',
+        );
+    });
+
+    it('should not make the medication quantity less than 0', async () => {
+        const reminder = {
+            id: 1,
+            nextDate: '2025-03-15',
+            frequency: 1,
+            quantity: 2,
+            nextDateTime: new Date('2025-03-15T14:00:00Z'),
+            getMedication: jest.fn(),
+            getUser: jest.fn(),
+            save: jest.fn(),
+        };
+        const medication = {
+            name: '',
+            indication: null,
+            quantity: 1,
+            unit: MedicationUnit.UNIT,
+            save: jest.fn(),
+        };
+        reminder.getMedication.mockResolvedValue(medication);
+        reminder.getUser.mockResolvedValue({ mobileAppDevice: null });
+        ReminderService.setUpTimeout(reminder as unknown as Reminder);
+        expect(BigTimeout.set).toHaveBeenCalledTimes(1);
+        expect(BigTimeout.set).toHaveBeenCalledWith(expect.any(Function), 14400000);
+        // Call the trigger function
+        await (BigTimeout.set as jest.Mock).mock.calls[0][0]();
+        expect(reminder.getMedication).toHaveBeenCalledTimes(1);
+        expect(medication.save).toHaveBeenCalledTimes(1);
+        expect(medication.quantity).toBe(0);
+        expect(reminder.getUser).toHaveBeenCalledTimes(1);
+        expect(reminder.getUser).toHaveBeenCalledWith({ attributes: ['mobileAppDevice'] });
+        expect(reminder.save).toHaveBeenCalledTimes(1);
+        expect(reminder.nextDate).toBe('2025-03-16');
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledTimes(1);
+        expect(HomeAssistantService.playMedia).toHaveBeenCalledWith(
+            'http://localhost:3000/api/static/alarm.mp3',
+            'media_player.vlc_telnet',
+        );
     });
 });
 

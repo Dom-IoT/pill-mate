@@ -3,9 +3,9 @@ import { config } from 'dotenv';
 config({ path: '../.env' });
 
 import app from './app';
-import { HomeAssistantService } from './services/homeAssistantService';
+import { HomeAssistantService } from './services/HomeAssistantService';
 import { createLogger } from './logger';
-import { ReminderService } from './services/reminderService';
+import { ReminderService } from './services/ReminderService';
 import { sequelize } from './sequelize';
 
 const SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
@@ -20,9 +20,10 @@ const logger = createLogger('backend');
     }
 
     await Promise.all([
-        sequelize.sync({ alter: { drop: false } }).then(() => ReminderService.initAllTimeouts()),
+        sequelize.sync({ alter: { drop: false } }),
         HomeAssistantService.init(SUPERVISOR_TOKEN),
     ]);
+    await ReminderService.initAllTimeouts();
 
     app.listen(PORT, () => {
         logger.info(`Server running at http://localhost:${PORT}`);

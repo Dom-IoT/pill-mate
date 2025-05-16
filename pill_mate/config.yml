@@ -21,3 +21,5 @@ arch:
   - armv7
   - i386
 startup: services
+ports:
+  8099/tcp: 3000

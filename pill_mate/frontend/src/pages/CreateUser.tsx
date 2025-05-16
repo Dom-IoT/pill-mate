@@ -4,6 +4,7 @@ import { useUser } from '../context/useUser';
 import { UserRole } from '../models/User/index';
 import './CreateUser.css';
 
+// TODO: add the user phone selection
 const CreateUser = () => {
     const { createUser } = useUser();
     const [role] = useState(UserRole.HELPED);

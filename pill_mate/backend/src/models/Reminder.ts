@@ -1,6 +1,11 @@
 import {
+    BelongsToCreateAssociationMixin,
+    BelongsToGetAssociationMixin,
+    BelongsToSetAssociationMixin,
+} from 'sequelize';
+import {
+    AfterCreate,
     AllowNull,
-    BeforeCreate,
     BeforeDestroy,
     BeforeUpdate,
     BelongsTo,
@@ -12,7 +17,7 @@ import {
     Table,
 } from 'sequelize-typescript';
 
-import { ReminderService } from '../services/reminderService';
+import { ReminderService } from '../services/ReminderService';
 import { Medication } from './Medication';
 import { User } from './User';
 
@@ -74,13 +79,17 @@ export class Reminder extends Model {
     @Column(DataType.DATEONLY)
     declare nextDate: string;
 
-    @BelongsTo(() => Medication)
-    declare medication: Medication;
-
     @ForeignKey(() => Medication)
     @AllowNull(false)
     @Column
     declare medicationId: number;
+
+    @BelongsTo(() => Medication)
+    declare medication: Medication;
+
+    declare getMedication: BelongsToGetAssociationMixin<Medication>;
+    declare setMedication: BelongsToSetAssociationMixin<Medication, number>;
+    declare createMedication: BelongsToCreateAssociationMixin<Medication>;
 
     @ForeignKey(() => User)
     @AllowNull(false)
@@ -89,6 +98,10 @@ export class Reminder extends Model {
 
     @BelongsTo(() => User)
     declare user: User;
+
+    declare getUser: BelongsToGetAssociationMixin<User>;
+    declare setUser: BelongsToSetAssociationMixin<User, number>;
+    declare createUser: BelongsToCreateAssociationMixin<User>;
 
     /**
      * Computes the exact `Date` object when the reminder should trigger.
@@ -102,7 +115,7 @@ export class Reminder extends Model {
         return nextDate;
     }
 
-    @BeforeCreate
+    @AfterCreate
     static onCreate(instance: Reminder) {
         ReminderService.setUpTimeout(instance);
     }

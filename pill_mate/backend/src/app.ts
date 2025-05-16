@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { createLogger } from './logger';
+import homeAssistantRoutes from './routes/homeAssistantRoutes';
 import medicationRoutes from './routes/medicationRoutes';
 import reminderRoutes from './routes/reminderRoutes';
 import userRoutes from './routes/userRoutes';
@@ -19,11 +20,14 @@ app.use(morgan('dev', {
     },
 }));
 
+app.use('/static', express.static('assets'));
+
 app.use(applicationJson);
 app.use(express.json());
 
 app.use(homeAssistantHeaders);
 
+app.use('/homeassistant', homeAssistantRoutes);
 app.use('/medication', medicationRoutes);
 app.use('/reminder', reminderRoutes);
 app.use('/user', userRoutes);

@@ -4,6 +4,7 @@ import app from '../app';
 import { Reminder } from '../models/Reminder';
 import { User } from '../models/User';
 import { UserRole } from '../models/UserRole';
+import { HomeAssistantService } from '../services/HomeAssistantService';
 
 jest.mock('../models/Reminder', () => {
     return {
@@ -18,6 +19,14 @@ jest.mock('../models/User', () => {
         User: {
             create: jest.fn(),
             findOne: jest.fn(),
+        },
+    };
+});
+
+jest.mock('../services/HomeAssistantService', () => {
+    return {
+        HomeAssistantService: {
+            getMobileAppDevices: jest.fn(),
         },
     };
 });
@@ -93,6 +102,7 @@ describe('GET /user/me', () => {
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
+            mobileAppDevice: 'Redmi Note 8T',
         });
 
         const response = await request(app)
@@ -106,6 +116,7 @@ describe('GET /user/me', () => {
             userName: 'johndoe',
             userDisplayName: 'John Doe',
             role: UserRole.HELPED,
+            mobileAppDevice: 'Redmi Note 8T',
         });
         expect(response.status).toBe(200);
         expect(User.findOne).toHaveBeenCalledTimes(1);
@@ -209,11 +220,39 @@ describe('POST /user/', () => {
         expect(response.status).toBe(400);
     });
 
+    it('should return 400 if the mobileAppDevice is invalid', async () => {
+        const response = await request(app)
+            .post('/user/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({ role: UserRole.HELPED, mobileAppDevice: 1 });
+        expect(response.body).toStrictEqual({ message: 'Invalid mobileAppDevice.' });
+        expect(response.status).toBe(400);
+    });
+
+    it('should return 400 if the mobileAppDevice is not in the available devices', async () => {
+        (HomeAssistantService.getMobileAppDevices as jest.Mock).mockResolvedValue([{
+            name: 'Redmi Note 9',
+        }]);
+        const response = await request(app)
+            .post('/user/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({ role: UserRole.HELPED, mobileAppDevice: 'Redmin Note 8T' });
+        expect(response.body).toStrictEqual({ message: 'Invalid mobileAppDevice.' });
+        expect(response.status).toBe(400);
+    });
+
     it('should return 400 if the user is already registered', async () => {
         (User.findOne as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
+            mobileAppDevice: null,
         });
 
         const response = await request(app)
@@ -232,12 +271,13 @@ describe('POST /user/', () => {
         });
     });
 
-    it('should create the user', async () => {
+    it('should create the user with no mobile app device', async () => {
         (User.findOne as jest.Mock).mockResolvedValue(null);
         (User.create as jest.Mock).mockResolvedValue({
             id: 1,
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
+            mobileAppDevice: null,
         });
 
         const response = await request(app)
@@ -253,6 +293,7 @@ describe('POST /user/', () => {
             userName: 'johndoe',
             userDisplayName: 'John Doe',
             role: UserRole.HELPED,
+            mobileAppDevice: null,
         });
         expect(response.status).toBe(201);
         expect(User.findOne).toHaveBeenCalledTimes(1);
@@ -264,6 +305,91 @@ describe('POST /user/', () => {
         expect(User.create).toHaveBeenCalledWith({
             homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
             role: UserRole.HELPED,
+        });
+    });
+
+    it('should create the user with a mobile app device set to null', async () => {
+        (User.findOne as jest.Mock).mockResolvedValue(null);
+        (User.create as jest.Mock).mockResolvedValue({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+            mobileAppDevice: null,
+        });
+
+        const response = await request(app)
+            .post('/user/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({
+                role: UserRole.HELPED,
+                mobileAppDevice: null,
+            });
+        expect(response.body).toStrictEqual({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            userName: 'johndoe',
+            userDisplayName: 'John Doe',
+            role: UserRole.HELPED,
+            mobileAppDevice: null,
+        });
+        expect(response.status).toBe(201);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(User.findOne).toHaveBeenCalledWith({
+            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
+            attributes: ['id'],
+        });
+        expect(User.create).toHaveBeenCalledTimes(1);
+        expect(User.create).toHaveBeenCalledWith({
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+            mobileAppDevice: null,
+        });
+    });
+
+    it('should create the user with a mobile app device', async () => {
+        (User.findOne as jest.Mock).mockResolvedValue(null);
+        (User.create as jest.Mock).mockResolvedValue({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+            mobileAppDevice: 'Redmi Note 8T',
+        });
+        (HomeAssistantService.getMobileAppDevices as jest.Mock).mockResolvedValue([{
+            name: 'Redmi Note 8T',
+        }]);
+
+        const response = await request(app)
+            .post('/user/')
+            .set('Content-type', 'application/json')
+            .set('x-remote-user-id', 'c355d2aaeee44e4e84ff8394fa4794a9')
+            .set('x-remote-user-name', 'johndoe')
+            .set('x-remote-user-display-name', 'John Doe')
+            .send({
+                role: UserRole.HELPED,
+                mobileAppDevice: 'Redmi Note 8T',
+            });
+        expect(response.body).toStrictEqual({
+            id: 1,
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            userName: 'johndoe',
+            userDisplayName: 'John Doe',
+            role: UserRole.HELPED,
+            mobileAppDevice: 'Redmi Note 8T',
+        });
+        expect(response.status).toBe(201);
+        expect(User.findOne).toHaveBeenCalledTimes(1);
+        expect(User.findOne).toHaveBeenCalledWith({
+            where: { homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9' },
+            attributes: ['id'],
+        });
+        expect(User.create).toHaveBeenCalledTimes(1);
+        expect(User.create).toHaveBeenCalledWith({
+            homeAssistantUserId: 'c355d2aaeee44e4e84ff8394fa4794a9',
+            role: UserRole.HELPED,
+            mobileAppDevice: 'Redmi Note 8T',
         });
     });
 });

@@ -4,24 +4,42 @@ import { WebSocket } from 'ws';
 
 import { createLogger } from '../../logger';
 import {
+    Device,
     EntitySourceResult,
+    GetDevicesResult,
     GetServicesResult,
     GetStatesResult,
     PersonListResult,
     ResultSuccessMessage,
     ServerMessage,
-} from './server_message';
-import { ClientMessage, CommandMessageWithoutId } from './client_message';
+} from './ServerMessage';
+import { ClientMessage, CommandMessageWithoutId } from './ClientMessage';
 
 const WEBSOCKET_URL: string = 'ws://supervisor/core/websocket';
 const MAX_RETRY: number = 10;
 const RETRY_DELAY: number = 5_000;  // 5 s
 
 const logger = createLogger('websocket');
+const backendLogger = createLogger('backend');
+
+export type Notification = {
+    title?: string,
+    message: string,
+    data?: {
+        url: string,
+        clickAction: string,
+    },
+} | {
+    message: 'command_webview',
+    data: {
+        command: string,
+    },
+};
 
 export class HomeAssistantService {
 
     private static webSocket: WebSocket;
+    private static addonSlug: string;
     private static connected: boolean = false;
     private static nextId: number = 1;
     private static pendingRequests: { [key: number]: {
@@ -37,7 +55,7 @@ export class HomeAssistantService {
         accessToken: string,
         tryCount: number,
     ) {
-        logger.info('Trying to Home Assistant WebSocket server');
+        logger.info('Trying to connect to Home Assistant WebSocket server');
         try {
             await HomeAssistantService.connect(accessToken);
         } catch {
@@ -76,7 +94,7 @@ export class HomeAssistantService {
                 }
             });
 
-            HomeAssistantService.webSocket.on('message', (data, isBinary) => {
+            HomeAssistantService.webSocket.on('message', async (data, isBinary) => {
                 if (isBinary) {
                     logger.error('Binary message received');
                     return;
@@ -95,6 +113,9 @@ export class HomeAssistantService {
 
                 if (message.type === 'auth_ok') {
                     logger.info('Authentication succeeded');
+                    HomeAssistantService.addonSlug = await HomeAssistantService.getAddonSlug(
+                        accessToken,
+                    );
                     resolve();
                     return;
                 }
@@ -122,6 +143,20 @@ export class HomeAssistantService {
                 logger.error(`Unknown message type: ${(message as { type: string }).type}`);
             });
         });
+    }
+
+    private static async getAddonSlug(accessToken: string) {
+        const response = await fetch('http://supervisor/addons/self/info', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+        });
+        if (!response.ok) {
+            backendLogger.error('Failed to get Add-on slug');
+            process.exit(1);
+        }
+        const { data } = (await response.json()) as { data: { slug: string } };
+        return data.slug;
     }
 
     private static send(data: ClientMessage) {
@@ -179,11 +214,19 @@ export class HomeAssistantService {
     }
 
     static async ttsSpeak(message: string, speaker: string, ttsEntity: string, language: string) {
-        HomeAssistantService.callServices('tts', 'speak', {
+        await HomeAssistantService.callServices('tts', 'speak', {
             media_player_entity_id: speaker,
             entity_id: ttsEntity,
             message,
             language,
+        });
+    }
+
+    static async playMedia(url: string, speaker: string) {
+        await HomeAssistantService.callServices('media_player', 'play_media', {
+            media_content_id: url,
+            media_content_type: 'audio/mp3',
+            entity_id: speaker,
         });
     }
 
@@ -192,5 +235,50 @@ export class HomeAssistantService {
             type: 'person/list',
         })).result as PersonListResult;
         return result.storage;
+    }
+
+    static async getDevices(): Promise<Device[]> {
+        const result = (await HomeAssistantService.sendWithId({
+            type: 'config/device_registry/list',
+        })).result as GetDevicesResult;
+        return result;
+    }
+
+    static async getMobileAppDevices(): Promise<Device[]> {
+        const devices = await HomeAssistantService.getDevices();
+        return devices.filter(device => device.identifiers.some(
+            array => array.some(
+                str => str === 'mobile_app',
+            ),
+        ));
+    }
+
+    private static getAddonUrl(): string {
+        return `/${HomeAssistantService.addonSlug}/ingress`;
+    }
+
+    static async sendNotification(device: string, notification: Notification) {
+        const deviceId = device.toLowerCase().replaceAll(' ', '_');
+        if (notification.data === undefined) {
+            const url = HomeAssistantService.getAddonUrl();
+            notification.data = {
+                url,
+                clickAction: url,
+            };
+        }
+        await HomeAssistantService.callServices(
+            'notify',
+            `mobile_app_${deviceId}`,
+            notification,
+        );
+    }
+
+    static async openMobileAppOnDevice(device: string) {
+        await HomeAssistantService.sendNotification(device, {
+            message: 'command_webview',
+            data: {
+                command: HomeAssistantService.getAddonUrl(),
+            },
+        });
     }
 }

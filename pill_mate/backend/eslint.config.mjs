@@ -17,6 +17,7 @@ export default tseslint.config(
             globals: globals.node,
         },
         rules: {
+            'no-console': 'error',
             'max-len': ['error', { code: 100 }],
             indent: ['error', 4],
             semi: ['error', 'always'],
