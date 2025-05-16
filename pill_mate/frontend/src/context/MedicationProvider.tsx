@@ -26,8 +26,8 @@ export const MedicationProvider = ({ children }: { children: ReactNode }) => {
         setMedications(prev => [...prev, medication]);
     };
 
-    const modifyMedication = async ( id: number, oldmedication: PatchMedication) => {
-        const newmedication = await modifyMedicationAPI(id, oldmedication);
+    const modifyMedication = async ( id: number, modifiedNewMedication: PatchMedication) => {
+        const newmedication = await modifyMedicationAPI(id, modifiedNewMedication);
         setMedications(prev => prev.map(medication => medication.id === id
             ? newmedication
             : medication,

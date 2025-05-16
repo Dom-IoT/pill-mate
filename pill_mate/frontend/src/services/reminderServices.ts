@@ -16,11 +16,11 @@ export const deleteReminderAPI = async (id: number): Promise<void> => {
 
 export const modifyReminderAPI = async (
     id: number,
-    newreminder: PatchReminder,
+    modifiedNewReminder: PatchReminder,
 ): Promise<Reminder> => {
     return await apiService<Reminder>({
         method: 'PATCH',
-        body: newreminder,
+        body: modifiedNewReminder,
         route: `/reminder/${id}`,
     });
 };

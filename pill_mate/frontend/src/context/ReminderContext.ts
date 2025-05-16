@@ -5,7 +5,7 @@ interface ReminderContextType {
     loading: boolean;
     reminders: Reminder[];
     addReminder: (newReminder: CreateReminder) => void;
-    modifyReminder: (id: number, oldreminder: PatchReminder) => void;
+    modifyReminder: (id: number, modifiedNewReminder: PatchReminder) => void;
     delReminder: (id: number) => void;
 }
 

@@ -5,7 +5,7 @@ interface MedicationContextType {
     loading: boolean;
     medications: Medication[];
     addMedication: (newMedication: CreateMedication) => void;
-    modifyMedication: (id: number, oldmedication: PatchMedication) => void;
+    modifyMedication: (id: number, modifiedNewMedication: PatchMedication) => void;
     delMedication: (id: number) => void;
 }
 
