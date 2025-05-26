@@ -18,7 +18,7 @@ const Stock: FC = () => {
             <div className="StockList">
                 <div onClick={() => setShow(true)}>
                     <AddButton
-                        title="Ajouter un rappel"
+                        title="Ajouter un médicament"
                         color="green"
                     />
                 </div>
