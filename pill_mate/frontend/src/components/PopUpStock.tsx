@@ -104,15 +104,15 @@ const PopUpStock: FC<Props> = ({ onClose, mode, medication: medication }) => {
 
                 <div className="Settings">
                     <button type="submit" title={
-                        mode === 'Ajouter' ? 'Ajouter le rappel' : 'Modifier le rappel'
+                        mode === 'Ajouter' ? 'Ajouter le médicament' : 'Modifier le médicament'
                     }>{mode}</button>
                     {medication && (
-                        <button className="deleteButton" title={'Supprimer le rappel'}
+                        <button className="deleteButton" title={'Supprimer le médicament'}
                             onClick={() => {
                                 delMedication(medication.id);
                                 onClose();
                             }}>
-                            <Trash2 size={10}/> Supprimer le rappel
+                            <Trash2 size={10}/> Supprimer le médicament
                         </button>
                     )}
                 </div>
